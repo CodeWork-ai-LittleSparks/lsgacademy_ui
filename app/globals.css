@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  
+  /* Brand Colors */
+  --primary: #6F00FF;
+  --primary-50: #F3E8FF;
+  --primary-100: #E9D5FF;
+  --primary-200: #D8B4FE;
+  --primary-300: #C084FC;
+  --primary-400: #A855F7;
+  --primary-500: #6F00FF;
+  --primary-600: #5B00D1;
+  --primary-700: #4A00A3;
+  --primary-800: #390075;
+  --primary-900: #280047;
+  
+  --secondary: #3B0270;
+  --secondary-50: #F8F4FF;
+  --secondary-100: #F1E9FF;
+  --secondary-200: #E3D3FF;
+  --secondary-300: #D5BDFF;
+  --secondary-400: #C7A7FF;
+  --secondary-500: #3B0270;
+  --secondary-600: #32025F;
+  --secondary-700: #29014E;
+  --secondary-800: #20013D;
+  --secondary-900: #17012C;
+  
+  --accent: #E9B3FB;
+  --accent-50: #FEFCFF;
+  --accent-100: #FDF9FF;
+  --accent-200: #F9EDFE;
+  --accent-300: #F5E1FD;
+  --accent-400: #F1D5FC;
+  --accent-500: #E9B3FB;
+  --accent-600: #E199F9;
+  --accent-700: #D97FF7;
+  --accent-800: #D165F5;
+  --accent-900: #C94BF3;
+  
+  --light: #FFF1F1;
+  --light-50: #FFFFFF;
+  --light-100: #FFF9F9;
+  --light-200: #FFF1F1;
+  --light-300: #FFE9E9;
+  --light-400: #FFE1E1;
+  --light-500: #FFD9D9;
+  --light-600: #FFD1D1;
+  --light-700: #FFC9C9;
+  --light-800: #FFC1C1;
+  --light-900: #FFB9B9;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  
+  /* Updated brand colors */
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-light: var(--light);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Reduce global scale for text, icons, and spacing */
+html {
+  font-size: 14px; /* default is ~16px; this shrinks UI ~12.5% */
+}
