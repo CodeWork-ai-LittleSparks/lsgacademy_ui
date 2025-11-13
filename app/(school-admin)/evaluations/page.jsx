@@ -11,7 +11,7 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import Dropdown from '@/components/ui/Dropdown';
-import { toPublicAssetUrl } from '@/lib/utils/urlutils';
+import { toPublicAssetUrl } from '@/lib/utils/urlUtils';
 
 function formatDateTime(dtStr) {
   try {

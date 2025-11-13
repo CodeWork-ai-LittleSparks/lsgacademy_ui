@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { toPublicAssetUrl } from "@/lib/utils/urlutils";
+import { toPublicAssetUrl } from "@/lib/utils/urlUtils";
 import {
   getAllPrograms,
   getCategories,

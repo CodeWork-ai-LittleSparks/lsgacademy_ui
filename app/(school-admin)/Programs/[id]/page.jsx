@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import ProgramStats from "@/components/programs/ProgramStats";
 import { getProgramById } from "@/lib/api/services/programService";
-import { toPublicAssetUrl } from "@/lib/utils/urlutils";
+import { toPublicAssetUrl } from "@/lib/utils/urlUtils";
 
 export default function SchoolProgramDetailPage() {
   const router = useRouter();
