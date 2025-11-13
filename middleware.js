@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { USER_ROLES } from '@/lib/constants/config';
 
 export function middleware(request) {
   const { pathname } = request.nextUrl;
@@ -6,6 +7,18 @@ export function middleware(request) {
   // Get token from cookies or headers
   const token = request.cookies.get('lsg_access_token')?.value || 
                 request.headers.get('authorization')?.replace('Bearer ', '');
+
+  // Best-effort parse of user role from cookie
+  let role = null;
+  try {
+    const rawUser = request.cookies.get('lsg_user_data')?.value;
+    if (rawUser) {
+      const parsed = JSON.parse(decodeURIComponent(rawUser));
+      role = parsed?.role || null;
+    }
+  } catch {
+    role = null;
+  }
 
   // Public routes that don't require authentication
   const publicRoutes = ['/login', '/forgot-password', '/reset-password'];
@@ -31,18 +44,35 @@ export function middleware(request) {
 
   // If has token and trying to access auth routes, redirect to appropriate dashboard
   if (token && isAuthRoute) {
-    // Since we can't decode JWT in middleware easily, redirect to a default dashboard
-    // The auth context will handle the proper role-based redirect
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    const target = role === USER_ROLES.SCHOOL_ADMIN ? '/school-dashboard' : '/dashboard';
+    return NextResponse.redirect(new URL(target, request.url));
   }
 
   // Handle root path redirect
   if (pathname === '/') {
     if (token) {
-      // Redirect to dashboard, let auth context handle role-based routing
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+      const target = role === USER_ROLES.SCHOOL_ADMIN ? '/school-dashboard' : '/dashboard';
+      return NextResponse.redirect(new URL(target, request.url));
     } else {
       return NextResponse.redirect(new URL('/login', request.url));
+    }
+  }
+
+  // Strict role-based authorization
+  if (role === USER_ROLES.SCHOOL_ADMIN || role === 'school-admin') {
+    if (superAdminRoutes.some(route => pathname.startsWith(route))) {
+      // Special case: if a school admin hits lowercase /programs path, redirect to uppercase /Programs
+      if (pathname.startsWith('/programs')) {
+        const corrected = pathname.replace(/^\/programs/, '/Programs');
+        return NextResponse.redirect(new URL(corrected, request.url));
+      }
+      return NextResponse.redirect(new URL('/school-dashboard', request.url));
+    }
+  }
+
+  if (role === USER_ROLES.SUPER_ADMIN || role === 'super-admin') {
+    if (schoolAdminRoutes.some(route => pathname.startsWith(route))) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
     }
   }
 

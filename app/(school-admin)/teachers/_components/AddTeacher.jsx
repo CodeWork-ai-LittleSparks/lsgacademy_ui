@@ -1,236 +1,135 @@
-"use client"
-import React, { useState } from 'react';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  GraduationCap, 
-  Calendar, 
-  FileText, 
-  Save,
-  AlertCircle,
-  CheckCircle,
-  Loader2
-} from 'lucide-react';
-import { teacherService } from '@/lib/api/services/teacherService';
-import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
+"use client";
+import { useEffect, useMemo, useState } from "react";
+import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import { createTeacher, updateTeacher, checkEmailUnique } from "@/lib/api/services/teacherService";
 
-export default function AddTeacher({ onClose, onSuccess }) {
-  const [formData, setFormData] = useState({
-    full_name: '',
-    email: '',
-    phone: '',
-    qualifications: '',
-    experience_years: 0,
-    bio: ''
+export default function AddTeacher({ teacher = null, isEditing = false, onCancel, onSaved }) {
+  const [form, setForm] = useState({
+    full_name: "",
+    email: "",
+    phone: "",
+    qualifications: "",
+    experience_years: "",
+    bio: "",
+    is_active: true,
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [original, setOriginal] = useState(form);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [emailCheck, setEmailCheck] = useState({ checked: false, isUnique: true, loading: false });
 
-  const handleInputChange = (e) => {
-    const { name, value, type } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'number' ? parseInt(value) || 0 : value
-    }));
-    // Clear error when user starts typing
-    if (error) setError('');
-    if (success) setSuccess('');
+  useEffect(() => {
+    if (teacher) {
+      const init = {
+        full_name: teacher?.user?.full_name || "",
+        email: teacher?.user?.email || "",
+        phone: teacher?.user?.phone || "",
+        qualifications: teacher.qualifications || "",
+        experience_years: teacher.experience_years ?? "",
+        bio: teacher.bio || "",
+        is_active: !!(teacher?.user?.is_active ?? teacher?.is_active),
+      };
+      setForm(init); setOriginal(init);
+    }
+  }, [teacher]);
+
+  const hasChanges = useMemo(() => JSON.stringify(form) !== JSON.stringify(original), [form, original]);
+
+  const handleChange = (field) => (e) => {
+    const value = field === 'is_active' ? e.target.checked : e.target.value;
+    setForm((f) => ({ ...f, [field]: value }));
+    if (field === 'email') setEmailCheck({ checked: false, isUnique: true, loading: false });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess('');
-
+  const validateEmail = async () => {
+    if (!form.email) return;
+    setEmailCheck((s) => ({ ...s, loading: true }));
     try {
-      const response = await teacherService.createTeacher(formData);
-      
-      if (response.success) {
-        setSuccess(response.message || 'Teacher created successfully!');
-        // Reset form
-        setFormData({
-          full_name: '',
-          email: '',
-          phone: '',
-          qualifications: '',
-          experience_years: 0,
-          bio: ''
-        });
-        
-        // Call success callback if provided
-        if (onSuccess) {
-          setTimeout(() => onSuccess(response.data), 1500);
-        }
+      const res = await checkEmailUnique(form.email);
+      setEmailCheck({ checked: true, isUnique: !!res?.data?.isUnique, loading: false });
+    } catch {
+      setEmailCheck({ checked: true, isUnique: true, loading: false });
+    }
+  };
+
+  const submit = async () => {
+    setSaving(true); setMessage(""); setError("");
+    try {
+      const action = isEditing ? updateTeacher : createTeacher;
+      const res = isEditing ? await action(teacher.id, form) : await action(form);
+      if (res.success) {
+        setMessage(isEditing ? "Teacher updated" : "Teacher created");
+        onSaved?.(res?.data?.id ?? teacher?.id);
       } else {
-        setError(response.error || 'Failed to create teacher');
+        setError(res.error || "Operation failed");
       }
     } catch (err) {
-      setError(err.message || 'An unexpected error occurred');
+      setError(err?.message || "Operation failed");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 max-w-4xl mx-auto">
-
-      {/* Success Message */}
-      {success && (
-        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <div className="flex items-center">
-            <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-            <p className="text-green-800">{success}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Error Message */}
-      {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <div className="flex items-center">
-            <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
-            <p className="text-red-800">{error}</p>
-          </div>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Personal Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <User className="h-4 w-4 inline mr-1" />
-              Full Name *
-            </label>
-            <Input
-              type="text"
-              name="full_name"
-              value={formData.full_name}
-              onChange={handleInputChange}
-              placeholder="Enter teacher's full name"
-              required
-              className="w-full"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Mail className="h-4 w-4 inline mr-1" />
-              Email Address *
-            </label>
-            <Input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              placeholder="teacher@example.com"
-              required
-              className="w-full"
-            />
-          </div>
+    <Card className="bg-white border-gray-200 shadow-sm">
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">{isEditing ? "Edit Teacher" : "Add Teacher"}</h2>
+          {onCancel ? (<Button variant="outline" onClick={onCancel}>Cancel</Button>) : null}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Phone className="h-4 w-4 inline mr-1" />
-              Phone Number
-            </label>
-            <Input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-              placeholder="Enter phone number"
-              className="w-full"
-            />
-          </div>
+        {error ? (<div className="rounded border border-red-200 bg-red-50 p-2 text-sm text-red-700">{error}</div>) : null}
+        {message ? (<div className="rounded border border-green-200 bg-green-50 p-2 text-sm text-green-700">{message}</div>) : null}
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Calendar className="h-4 w-4 inline mr-1" />
-              Years of Experience
-            </label>
-            <Input
-              type="number"
-              name="experience_years"
-              value={formData.experience_years}
-              onChange={handleInputChange}
-              placeholder="0"
-              min="0"
-              max="50"
-              className="w-full"
-            />
+            <label className="text-sm text-gray-700">Full Name</label>
+            <Input value={form.full_name} onChange={handleChange('full_name')} placeholder="Full name" />
           </div>
-        </div>
-
-        {/* Professional Information */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            <GraduationCap className="h-4 w-4 inline mr-1" />
-            Qualifications
-          </label>
-          <Input
-            type="text"
-            name="qualifications"
-            value={formData.qualifications}
-            onChange={handleInputChange}
-            placeholder="e.g., M.Ed, B.Sc in Mathematics, Teaching Certificate"
-            className="w-full"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            <FileText className="h-4 w-4 inline mr-1" />
-            Bio / Description
-          </label>
-          <textarea
-            name="bio"
-            value={formData.bio}
-            onChange={handleInputChange}
-            placeholder="Brief description about the teacher's background, specialties, and teaching philosophy..."
-            rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        {/* Form Actions */}
-        <div className="flex justify-center pt-6 border-t border-gray-200">
-          <Button
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                Creating Teacher...
-              </>
-            ) : (
-              <>
-                <Save className="h-5 w-5 mr-2" />
-                Create Teacher
-              </>
+          <label className="text-sm text-gray-700">Email</label>
+          <div className="flex gap-2">
+            <Input value={form.email} onChange={handleChange('email')} placeholder="teacher@example.com" className="flex-1" disabled={isEditing} />
+            {!isEditing && (
+              <Button size="sm" variant="outline" disabled={!form.email || emailCheck.loading} onClick={validateEmail}>{emailCheck.loading ? "Checking..." : "Check"}</Button>
             )}
-          </Button>
+          </div>
+          {emailCheck.checked && (
+            <div className={`text-xs mt-1 ${emailCheck.isUnique ? "text-green-700" : "text-red-700"}`}>
+              {emailCheck.isUnique ? "Email is available" : "Email already in use"}
+            </div>
+          )}
         </div>
-      </form>
-
-      {/* Field Requirements */}
-      <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-        <h4 className="text-sm font-medium text-gray-700 mb-2">Field Requirements:</h4>
-        <ul className="text-xs text-gray-600 space-y-1">
-          <li>• Full Name and Email are required fields</li>
-          <li>• Email must be in valid format (e.g., user@example.com)</li>
-          <li>• Experience years must be between 0 and 50</li>
-          <li>• All other fields are optional but recommended</li>
-        </ul>
+          <div>
+            <label className="text-sm text-gray-700">Phone</label>
+            <Input value={form.phone} onChange={handleChange('phone')} placeholder="+919876543210" />
+          </div>
+          <div>
+            <label className="text-sm text-gray-700">Qualifications</label>
+            <Input value={form.qualifications} onChange={handleChange('qualifications')} placeholder="B.Ed, M.Sc ..." />
+          </div>
+        <div>
+          <label className="text-sm text-gray-700">Experience (years)</label>
+          <Input type="number" value={form.experience_years} onChange={handleChange('experience_years')} placeholder="0" />
+        </div>
+        <div className="md:col-span-2">
+          <label className="text-sm text-gray-700">Bio</label>
+          <textarea value={form.bio} onChange={handleChange('bio')} placeholder="Short bio" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" rows={3} />
+        </div>
+        <div className="flex items-center gap-2">
+          <input id="is_active" type="checkbox" checked={!!form.is_active} onChange={handleChange('is_active')} />
+          <label htmlFor="is_active" className="text-sm text-gray-700">Active</label>
+        </div>
       </div>
-    </div>
+
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={onCancel}>Cancel</Button>
+          <Button variant="primary" disabled={saving || (isEditing && !hasChanges)} onClick={submit}>{isEditing ? (saving ? "Saving..." : "Save Changes") : (saving ? "Creating..." : "Create Teacher")}</Button>
+        </div>
+      </div>
+    </Card>
   );
 }

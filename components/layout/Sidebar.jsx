@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import { GraduationCap, LayoutGrid, Building2, BookOpen, Settings, Users, Calendar, ChevronRight, Menu, BarChart3, ClipboardList, ChevronLeft, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useSidebar } from "@/context/SidebarContext";
 
@@ -38,54 +39,50 @@ export default function Sidebar({ role = "super-admin" }) {
         aria-label="Toggle sidebar"
         onClick={() => setOpen((v) => !v)}
         className="fixed top-4 left-4 z-50 inline-flex items-center justify-center rounded-xl bg-white/90 backdrop-blur-sm shadow-lg px-3 py-3 md:hidden transition-all duration-200 hover:scale-105 active:scale-95"
-        style={{ backgroundColor: 'var(--color-light)' }}
+        style={{ backgroundColor: '#FFF1F1' }}
       >
-        <Menu className="h-5 w-5" style={{ color: 'var(--color-primary)' }} />
+        <Menu className="h-5 w-5" style={{ color: '#5B00D1' }} />
       </button>
 
       <aside
         className={`${open ? "translate-x-0" : "-translate-x-full"} fixed left-0 top-0 z-40 h-screen shadow-2xl transition-all duration-300 ease-in-out md:translate-x-0 ${
-          minimized ? 'w-[80px]' : 'w-[280px]'
+          minimized ? 'w-[60px]' : 'w-[210px]'
         }`}
         style={{ 
-          background: 'linear-gradient(180deg, #6F00FF 0%, #3B0270 100%)',
+          background: 'linear-gradient(180deg, #5B00D1 0%, #5B00D1 100%)',
         }}
       >
-        {/* Header */}
-        <div className="flex h-20 items-center gap-3 px-6 border-b border-white/20 relative">
+        {/* Header with Logo only */}
+        <div className="flex h-20 items-center px-6 border-b border-white/20 relative pt-10">
           {/* Desktop minimize/expand toggle */}
           <button
             onClick={() => setMinimized(!minimized)}
             className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 items-center justify-center w-6 h-6 rounded-full shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 z-10"
-            style={{ backgroundColor: 'var(--color-light)' }}
+            style={{ backgroundColor: '#FFF1F1' }}
             aria-label={minimized ? "Expand sidebar" : "Minimize sidebar"}
           >
             {minimized ? (
-              <PanelLeftOpen className="h-3 w-3" style={{ color: 'var(--color-primary)' }} />
+              <PanelLeftOpen className="h-3 w-3" style={{ color: '#5B00D1' }} />
             ) : (
-              <PanelLeftClose className="h-3 w-3" style={{ color: 'var(--color-primary)' }} />
+              <PanelLeftClose className="h-3 w-3" style={{ color: '#5B00D1' }} />
             )}
           </button>
 
-          <div 
-            className={`flex items-center justify-center rounded-xl shadow-lg transition-all duration-200 hover:scale-110 ${
-              minimized ? 'w-10 h-10' : 'w-12 h-12'
-            }`}
-            style={{ backgroundColor: 'var(--color-light)' }}
-          >
-            <GraduationCap className={`${minimized ? 'h-5 w-5' : 'h-7 w-7'} transition-all duration-200`} style={{ color: 'var(--color-primary)' }} />
+          {/* Centered logo */}
+          <div className="flex w-full items-center justify-center mt-5">
+            <Image
+              src="/images/logo.png"
+              alt="LSG Academy"
+              width={minimized ? 36 : 120}
+              height={minimized ? 36 : 60}
+              priority
+              className="object-contain"
+            />
           </div>
-          
-          {!minimized && (
-            <div className="transition-all duration-200">
-              <span className="font-bold text-xl text-white">LSG Academy</span>
-              <p className="text-xs text-white/80 font-medium">Education Portal</p>
-            </div>
-          )}
         </div>
 
         {/* Navigation */}
-        <nav className="mt-6 px-4 space-y-2">
+        <nav className="mt-20 px-4 space-y-2">
           {items.map(({ label, href, icon: Icon }) => {
             const active = pathname === href || pathname.startsWith(href + "/");
             return (
@@ -110,13 +107,13 @@ export default function Sidebar({ role = "super-admin" }) {
                       ${minimized ? 'w-8 h-8' : 'w-10 h-10'}
                     `}
                     style={{ 
-                      backgroundColor: active ? 'var(--color-accent-100)' : 'rgba(255, 255, 255, 0.15)',
+                      backgroundColor: active ? '#FCE7CF' : 'rgba(255, 255, 255, 0.15)',
                     }}
                   >
                     <Icon 
                       className={`${minimized ? 'h-4 w-4' : 'h-5 w-5'} transition-all duration-200`}
                       style={{ 
-                        color: active ? 'var(--color-primary)' : 'white'
+                        color: active ? '#5B00D1' : 'white'
                       }} 
                     />
                   </div>
@@ -142,7 +139,7 @@ export default function Sidebar({ role = "super-admin" }) {
                           }
                         `}
                         style={{ 
-                          color: active ? 'var(--color-primary)' : 'white'
+                          color: active ? '#5B00D1' : 'white'
                         }}
                       />
                     </>
@@ -161,7 +158,7 @@ export default function Sidebar({ role = "super-admin" }) {
         </nav>
 
         {/* Bottom accent */}
-        <div className="absolute bottom-0 left-0 right-0 h-2" style={{ backgroundColor: 'var(--color-accent)' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-2" style={{ backgroundColor: '#C7A7FF' }} />
       </aside>
 
       {/* Overlay for mobile */}

@@ -14,7 +14,9 @@ import {
   Plus,
   X,
   Calendar,
-  BarChart3
+  BarChart3,
+  Sparkles,
+  FolderOpen
 } from 'lucide-react';
 
 export default function ResourceLibrary({ levelId, resources = [], onUpload, onDelete, onView }) {
@@ -91,18 +93,21 @@ export default function ResourceLibrary({ levelId, resources = [], onUpload, onD
   });
 
   const getFileIcon = (type) => {
-    switch (type) {
-      case 'pdf':
-        return <div className="text-red-600 font-bold text-xs">PDF</div>;
-      case 'video':
-        return <div className="text-blue-600 font-bold text-xs">MP4</div>;
-      case 'image':
-        return <div className="text-green-600 font-bold text-xs">IMG</div>;
-      case 'presentation':
-        return <div className="text-orange-600 font-bold text-xs">PPT</div>;
-      default:
-        return <div className="text-gray-600 font-bold text-xs">FILE</div>;
-    }
+    const icons = {
+      pdf: { text: 'PDF', color: 'from-red-500 to-pink-600', bgColor: 'from-red-100 to-pink-100' },
+      video: { text: 'MP4', color: 'from-blue-500 to-cyan-600', bgColor: 'from-blue-100 to-cyan-100' },
+      image: { text: 'IMG', color: 'from-green-500 to-emerald-600', bgColor: 'from-green-100 to-emerald-100' },
+      presentation: { text: 'PPT', color: 'from-orange-500 to-amber-600', bgColor: 'from-orange-100 to-amber-100' },
+    };
+    const config = icons[type] || { text: 'FILE', color: 'from-gray-500 to-slate-600', bgColor: 'from-gray-100 to-slate-100' };
+    
+    return (
+      <div className={`w-full h-full bg-gradient-to-br ${config.bgColor} rounded-xl flex items-center justify-center`}>
+        <span className={`text-xs font-bold bg-gradient-to-br ${config.color} bg-clip-text text-transparent`}>
+          {config.text}
+        </span>
+      </div>
+    );
   };
 
   const handleUpload = () => {
@@ -111,7 +116,7 @@ export default function ResourceLibrary({ levelId, resources = [], onUpload, onD
         id: Date.now(),
         name: uploadData.name,
         type: uploadData.type,
-        size: '0 MB', // Would be calculated in real implementation
+        size: '0 MB',
         uploadDate: new Date().toLocaleDateString('en-US', { 
           year: 'numeric', 
           month: 'short', 
@@ -127,7 +132,6 @@ export default function ResourceLibrary({ levelId, resources = [], onUpload, onD
         onUpload(newResource);
       }
       
-      // Reset form
       setUploadData({ name: '', url: '', type: 'pdf', description: '' });
       setShowUploadModal(false);
     }
@@ -148,55 +152,62 @@ export default function ResourceLibrary({ levelId, resources = [], onUpload, onD
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900">Teaching Resources</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Manage and organize teaching materials for this level
-          </p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-xl shadow-sm">
+            <FolderOpen className="w-6 h-6 text-cyan-600" strokeWidth={2.5} />
+          </div>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">Teaching Resources</h2>
+            <p className="text-sm text-gray-600 font-medium mt-0.5">
+              Manage and organize teaching materials for this level
+            </p>
+          </div>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={() => {
               setUploadType('file');
               setShowUploadModal(true);
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors duration-200"
+            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
           >
-            <Upload className="h-4 w-4" />
-            Upload New Resource
+            <Upload className="h-4 w-4" strokeWidth={2.5} />
+            <span className="hidden sm:inline">Upload New</span>
           </button>
           <button
             onClick={() => {
               setUploadType('url');
               setShowUploadModal(true);
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
+            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
           >
-            <Link className="h-4 w-4" />
-            Upload from URL
+            <Link className="h-4 w-4" strokeWidth={2.5} />
+            <span className="hidden sm:inline">Add URL</span>
           </button>
         </div>
       </div>
 
       {/* Search and Filter */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 bg-purple-100 rounded-lg">
+            <Search className="text-purple-600 h-4 w-4" strokeWidth={2.5} />
+          </div>
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search resources..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Search resources by name or description..."
+            className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 font-medium transition-all duration-200 hover:border-purple-300"
           />
         </div>
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-gray-500" />
+        <div className="flex items-center gap-3 px-4 py-3 border-2 border-gray-200 rounded-xl bg-white">
+          <Filter className="h-4 w-4 text-gray-600 flex-shrink-0" strokeWidth={2.5} />
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="border-none outline-none font-semibold text-gray-900 bg-transparent cursor-pointer"
           >
             {resourceTypes.map((type) => (
               <option key={type.value} value={type.value}>
@@ -208,50 +219,75 @@ export default function ResourceLibrary({ levelId, resources = [], onUpload, onD
       </div>
 
       {/* Resource Statistics */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="flex items-center gap-2 mb-1">
-            <File className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-medium text-gray-600">Total Resources</span>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="group relative overflow-hidden rounded-2xl border-2 border-blue-200 bg-white p-4 sm:p-5 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.03]">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-full blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-500" />
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 bg-blue-100 rounded-lg">
+                <File className="h-4 w-4 text-blue-600" strokeWidth={2.5} />
+              </div>
+              <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Total</span>
+            </div>
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900">{displayResources.length}</p>
           </div>
-          <p className="text-xl font-bold text-gray-900">{displayResources.length}</p>
         </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="flex items-center gap-2 mb-1">
-            <Download className="h-4 w-4 text-green-600" />
-            <span className="text-sm font-medium text-gray-600">Total Downloads</span>
+
+        <div className="group relative overflow-hidden rounded-2xl border-2 border-green-200 bg-white p-4 sm:p-5 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.03]">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-500" />
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 bg-green-100 rounded-lg">
+                <Download className="h-4 w-4 text-green-600" strokeWidth={2.5} />
+              </div>
+              <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Downloads</span>
+            </div>
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900">
+              {displayResources.reduce((sum, r) => sum + (r.downloads || 0), 0)}
+            </p>
           </div>
-          <p className="text-xl font-bold text-gray-900">
-            {displayResources.reduce((sum, r) => sum + (r.downloads || 0), 0)}
-          </p>
         </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="flex items-center gap-2 mb-1">
-            <Eye className="h-4 w-4 text-purple-600" />
-            <span className="text-sm font-medium text-gray-600">Total Views</span>
+
+        <div className="group relative overflow-hidden rounded-2xl border-2 border-purple-200 bg-white p-4 sm:p-5 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.03]">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-500" />
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 bg-purple-100 rounded-lg">
+                <Eye className="h-4 w-4 text-purple-600" strokeWidth={2.5} />
+              </div>
+              <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Views</span>
+            </div>
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900">
+              {displayResources.reduce((sum, r) => sum + (r.views || 0), 0)}
+            </p>
           </div>
-          <p className="text-xl font-bold text-gray-900">
-            {displayResources.reduce((sum, r) => sum + (r.views || 0), 0)}
-          </p>
         </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="flex items-center gap-2 mb-1">
-            <Calendar className="h-4 w-4 text-orange-600" />
-            <span className="text-sm font-medium text-gray-600">Last Updated</span>
+
+        <div className="group relative overflow-hidden rounded-2xl border-2 border-orange-200 bg-white p-4 sm:p-5 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.03]">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-orange-100 to-amber-100 rounded-full blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-500" />
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 bg-orange-100 rounded-lg">
+                <Calendar className="h-4 w-4 text-orange-600" strokeWidth={2.5} />
+              </div>
+              <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Updated</span>
+            </div>
+            <p className="text-sm font-bold text-gray-900">
+              {displayResources.length > 0 ? displayResources[0].uploadDate : 'N/A'}
+            </p>
           </div>
-          <p className="text-sm font-bold text-gray-900">
-            {displayResources.length > 0 ? displayResources[0].uploadDate : 'N/A'}
-          </p>
         </div>
       </div>
 
       {/* Resources List */}
       <div className="space-y-3">
         {filteredResources.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-            <File className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No resources found</h3>
-            <p className="text-gray-600 mb-4">
+          <div className="text-center py-12 sm:py-16 bg-white rounded-2xl border-2 border-gray-200 shadow-md">
+            <div className="p-4 bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl shadow-inner w-fit mx-auto mb-4">
+              <FolderOpen className="h-12 w-12 text-gray-400" strokeWidth={1.5} />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">No resources found</h3>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto font-medium">
               {searchTerm || selectedType !== 'all' 
                 ? 'Try adjusting your search or filter criteria'
                 : 'Upload your first teaching resource to get started'
@@ -259,51 +295,66 @@ export default function ResourceLibrary({ levelId, resources = [], onUpload, onD
             </p>
             <button
               onClick={() => setShowUploadModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4" strokeWidth={2.5} />
               Add Resource
             </button>
           </div>
         ) : (
           filteredResources.map((resource) => (
-            <div key={resource.id} className="flex items-center gap-4 p-4 bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200">
-              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+            <div key={resource.id} className="group flex items-center gap-4 p-4 sm:p-5 bg-white rounded-xl border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50 shadow-sm hover:shadow-md transition-all duration-200">
+              <div className="w-14 h-14 flex-shrink-0">
                 {getFileIcon(resource.type)}
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-gray-900 truncate">{resource.name}</h4>
-                <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
-                  <span>{resource.size}</span>
-                  {resource.uploadDate && <span>Uploaded {resource.uploadDate}</span>}
-                  {resource.downloads && <span>{resource.downloads} downloads</span>}
-                  {resource.views && <span>{resource.views} views</span>}
+                <h4 className="font-bold text-gray-900 truncate mb-1">{resource.name}</h4>
+                <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-gray-600">
+                  <span className="px-2 py-1 bg-gray-100 rounded-lg">{resource.size}</span>
+                  {resource.uploadDate && (
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3" strokeWidth={2.5} />
+                      {resource.uploadDate}
+                    </span>
+                  )}
+                  {resource.downloads !== null && (
+                    <span className="flex items-center gap-1 text-green-600">
+                      <Download className="w-3 h-3" strokeWidth={2.5} />
+                      {resource.downloads}
+                    </span>
+                  )}
+                  {resource.views !== null && (
+                    <span className="flex items-center gap-1 text-purple-600">
+                      <Eye className="w-3 h-3" strokeWidth={2.5} />
+                      {resource.views}
+                    </span>
+                  )}
                 </div>
                 {resource.description && (
-                  <p className="text-sm text-gray-500 mt-1 truncate">{resource.description}</p>
+                  <p className="text-sm text-gray-600 mt-2 line-clamp-1 font-medium">{resource.description}</p>
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                 <button
                   onClick={() => handleView(resource)}
-                  className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200"
+                  className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-all duration-200 hover:scale-110"
                   title="View resource"
                 >
-                  <Eye className="h-4 w-4" />
+                  <Eye className="h-4 w-4" strokeWidth={2.5} />
                 </button>
                 <button
                   onClick={() => {}}
-                  className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors duration-200"
+                  className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-all duration-200 hover:scale-110"
                   title="Download resource"
                 >
-                  <Download className="h-4 w-4" />
+                  <Download className="h-4 w-4" strokeWidth={2.5} />
                 </button>
                 <button
                   onClick={() => handleDelete(resource.id)}
-                  className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors duration-200"
+                  className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-all duration-200 hover:scale-110"
                   title="Delete resource"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4" strokeWidth={2.5} />
                 </button>
               </div>
             </div>
@@ -313,23 +364,37 @@ export default function ResourceLibrary({ levelId, resources = [], onUpload, onD
 
       {/* Upload Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                {uploadType === 'file' ? 'Upload New Resource' : 'Add Resource from URL'}
-              </h3>
-              <button
-                onClick={() => setShowUploadModal(false)}
-                className="p-1 text-gray-500 hover:bg-gray-100 rounded"
-              >
-                <X className="h-5 w-5" />
-              </button>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="relative overflow-hidden p-6 border-b-2 border-gray-200 bg-gradient-to-r from-blue-50 to-cyan-50">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-200 to-cyan-200 rounded-full blur-3xl opacity-30" />
+              <div className="relative z-10 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl shadow-sm">
+                    {uploadType === 'file' ? (
+                      <Upload className="w-5 h-5 text-blue-600" strokeWidth={2.5} />
+                    ) : (
+                      <Link className="w-5 h-5 text-blue-600" strokeWidth={2.5} />
+                    )}
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    {uploadType === 'file' ? 'Upload New Resource' : 'Add Resource from URL'}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowUploadModal(false)}
+                  className="p-2 text-gray-500 hover:bg-white/80 rounded-xl transition-colors"
+                >
+                  <X className="h-5 w-5" strokeWidth={2.5} />
+                </button>
+              </div>
             </div>
 
-            <div className="space-y-4">
+            {/* Modal Content */}
+            <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-bold text-gray-900 mb-2 uppercase tracking-wide">
                   Resource Name
                 </label>
                 <input
@@ -337,13 +402,13 @@ export default function ResourceLibrary({ levelId, resources = [], onUpload, onD
                   value={uploadData.name}
                   onChange={(e) => setUploadData(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="Enter resource name"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 font-medium transition-all duration-200"
                 />
               </div>
 
               {uploadType === 'url' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-bold text-gray-900 mb-2 uppercase tracking-wide">
                     Resource URL
                   </label>
                   <input
@@ -351,19 +416,19 @@ export default function ResourceLibrary({ levelId, resources = [], onUpload, onD
                     value={uploadData.url}
                     onChange={(e) => setUploadData(prev => ({ ...prev, url: e.target.value }))}
                     placeholder="https://example.com/resource"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 font-medium transition-all duration-200"
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-bold text-gray-900 mb-2 uppercase tracking-wide">
                   Resource Type
                 </label>
                 <select
                   value={uploadData.type}
                   onChange={(e) => setUploadData(prev => ({ ...prev, type: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 font-semibold text-gray-900 transition-all duration-200"
                 >
                   <option value="pdf">PDF Document</option>
                   <option value="video">Video</option>
@@ -373,41 +438,44 @@ export default function ResourceLibrary({ levelId, resources = [], onUpload, onD
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-bold text-gray-900 mb-2 uppercase tracking-wide">
                   Description (Optional)
                 </label>
                 <textarea
                   value={uploadData.description}
                   onChange={(e) => setUploadData(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Brief description of the resource"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 font-medium transition-all duration-200 resize-none"
                   rows="3"
                 />
               </div>
 
               {uploadType === 'file' && (
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600">
+                <div className="border-2 border-dashed border-gray-300 hover:border-blue-400 rounded-xl p-8 text-center transition-colors cursor-pointer">
+                  <div className="p-3 bg-blue-100 rounded-xl w-fit mx-auto mb-3">
+                    <Upload className="h-8 w-8 text-blue-600" strokeWidth={2} />
+                  </div>
+                  <p className="text-sm font-semibold text-gray-900 mb-1">
                     Click to upload or drag and drop
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-600 font-medium">
                     PDF, DOC, PPT, MP4, JPG, PNG up to 50MB
                   </p>
                 </div>
               )}
             </div>
 
-            <div className="flex gap-3 mt-6">
+            {/* Modal Actions */}
+            <div className="flex gap-3 p-6 border-t-2 border-gray-200 bg-gray-50">
               <button
                 onClick={handleUpload}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white rounded-xl font-bold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
               >
                 {uploadType === 'file' ? 'Upload Resource' : 'Add Resource'}
               </button>
               <button
                 onClick={() => setShowUploadModal(false)}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors duration-200"
+                className="px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-bold transition-all duration-200"
               >
                 Cancel
               </button>
