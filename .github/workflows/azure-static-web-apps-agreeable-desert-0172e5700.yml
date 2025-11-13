@@ -30,6 +30,7 @@ jobs:
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: "/"
           output_location: ".next"
+          is_static_export: true
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
@@ -43,6 +44,7 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AGREEABLE_DESERT_0172E5700 }}
           action: "close"
+
 
 
 
