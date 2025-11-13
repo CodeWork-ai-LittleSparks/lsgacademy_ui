@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+import path from 'path';
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 let remotePatterns = [];
@@ -24,6 +25,15 @@ if (apiUrl) {
 const nextConfig = {
   images: {
     remotePatterns,
+  },
+  // Ensure '@/...' imports resolve correctly in all environments
+  webpack: (config) => {
+    config.resolve = config.resolve || {};
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      '@': path.resolve(process.cwd()),
+    };
+    return config;
   },
 };
 
