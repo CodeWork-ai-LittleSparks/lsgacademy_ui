@@ -84,7 +84,6 @@ jobs:
       - name: Build and Export Next.js app
         run: |
           npm run build
-          npm run export
 
       # Deploy exported static site to Azure
       - name: Deploy to Azure Static Web Apps
