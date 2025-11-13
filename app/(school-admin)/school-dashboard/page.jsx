@@ -1,252 +1,249 @@
 "use client";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import dashboardService, { getSchoolAdminDashboard } from "@/lib/api/services/dashboardService";
+import DateRangeSelector from "@/components/dashboard/DateRangeSelector";
+import SummaryCard from "@/components/dashboard/SummaryCard";
+import PerformanceChart from "@/components/dashboard/PerformanceChart";
+import RecentEvaluations from "@/components/dashboard/RecentEvaluations";
+import Loading from "@/components/common/Loading";
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
+import { ROUTES } from "@/lib/constants/config";
+import { MapPin, Users, UserCog, BookOpen, CheckCircle, Plus, FileText, AlertTriangle, Star } from "lucide-react";
 
-import Sidebar from "@/components/layout/Sidebar";
-import Header from "@/components/layout/Header";
-import Breadcrumb from "@/components/layout/Breadcrumb";
-import { ROLES } from "@/lib/constants";
-
-import SchoolMetrics from "./_components/SchoolMetrics";
-import QuickActions from "./_components/QuickActions";
-import RecentActivity from "./_components/RecentActivity";
-
-import { useMemo } from "react";
+function defaultDateRange() {
+  const to = new Date();
+  const from = new Date(to.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const fmt = (d) => d.toISOString().slice(0, 10);
+  return { from: fmt(from), to: fmt(to) };
+}
 
 export default function SchoolAdminDashboardPage() {
-  const today = useMemo(() => new Date(), []);
+  const router = useRouter();
+  const [dashboardData, setDashboardData] = useState(null);
+  const [metadata, setMetadata] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [dateRange, setDateRange] = useState(defaultDateRange());
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [responseMs, setResponseMs] = useState(null);
 
-  const week = useMemo(() => {
-    const d = new Date(today);
-    const day = d.getDay(); // 0-6, Sun-Sat
-    const diffToMonday = (day + 6) % 7; // convert to Monday-based
-    d.setDate(d.getDate() - diffToMonday);
-    const days = Array.from({ length: 7 }).map((_, i) => {
-      const date = new Date(d);
-      date.setDate(d.getDate() + i);
-      return date;
-    });
-    return days;
-  }, [today]);
-
-  const sessions = useMemo(
-    () => ({
-      // Mock sessions across the week
-      1: [
-        { time: "09:00", name: "Mathematics", color: "#14B8A6" },
-        { time: "11:00", name: "English", color: "#3B82F6" },
-      ],
-      2: [
-        { time: "10:00", name: "Science Lab", color: "#F59E0B" },
-        { time: "14:00", name: "History", color: "#3B82F6" },
-      ],
-      3: [
-        { time: "08:30", name: "Physical Education", color: "#22C55E" },
-        { time: "13:00", name: "Arts", color: "#F59E0B" },
-      ],
-      4: [
-        { time: "09:30", name: "Computer Science", color: "#6366F1" },
-      ],
-      5: [
-        { time: "10:00", name: "Chemistry", color: "#EF4444" },
-        { time: "12:00", name: "Biology", color: "#22C55E" },
-      ],
-    }),
-    []
-  );
-
-  const teacherStatus = [
-    { name: "Clara Johnson", program: "Mathematics", status: "present" },
-    { name: "David Lee", program: "Science", status: "leave" },
-    { name: "Priya Singh", program: "English", status: "present" },
-    { name: "Ahmed Hassan", program: "History", status: "absent" },
-    { name: "Sofia Alvarez", program: "Arts", status: "present" },
-  ];
-
-  const students = [
-    { name: "Arjun Mehta", grade: "A", programs: 4, attendance: 96, progress: 88 },
-    { name: "Lina Park", grade: "A-", programs: 3, attendance: 93, progress: 82 },
-    { name: "Ethan Brown", grade: "B+", programs: 3, attendance: 91, progress: 79 },
-    { name: "Fatima Noor", grade: "A", programs: 5, attendance: 97, progress: 92 },
-    { name: "Mateo Diaz", grade: "B", programs: 2, attendance: 88, progress: 74 },
-  ];
-
-  const statusDot = (status) => {
-    switch (status) {
-      case "present":
-        return "bg-green-500";
-      case "leave":
-        return "bg-yellow-400";
-      case "absent":
-        return "bg-red-500";
-      default:
-        return "bg-zinc-300";
+  const loadDashboard = useCallback(async (opts = {}) => {
+    setError(null);
+    if (opts.overlay !== true) setLoading(true);
+    try {
+      const res = await getSchoolAdminDashboard(dateRange.from, dateRange.to);
+      setDashboardData(res.data);
+      setMetadata(res.metadata || null);
+      setLastUpdated(res?.metadata?.generated_at ? new Date(res.metadata.generated_at).toISOString() : new Date().toISOString());
+      setResponseMs(res?.metadata?.response_time_ms ?? res?.durationMs ?? null);
+    } catch (err) {
+      console.error('School dashboard load failed:', err);
+      setError(err?.message || 'Unable to load dashboard. Check connection.');
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [dateRange.from, dateRange.to]);
+
+  useEffect(() => { loadDashboard(); }, [loadDashboard]);
+
+  // Keep URL query in sync with date range
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (dateRange.from) params.set('from', dateRange.from);
+    if (dateRange.to) params.set('to', dateRange.to);
+    const qs = params.toString();
+    router.replace(qs ? `/school-dashboard?${qs}` : `/school-dashboard`);
+  }, [dateRange.from, dateRange.to, router]);
+
+  // Auto-refresh every 5 minutes
+  useEffect(() => {
+    const id = setInterval(() => { loadDashboard({ overlay: true }); }, 5 * 60 * 1000);
+    return () => clearInterval(id);
+  }, [loadDashboard]);
+
+  const school = dashboardData?.school_info || {};
+  const summary = dashboardData?.summary || {};
+  const perfDist = dashboardData?.performance_distribution || {};
+  const programProgress = Array.isArray(dashboardData?.program_progress) ? dashboardData.program_progress : [];
+  const teacherSummary = Array.isArray(dashboardData?.teacher_summary) ? dashboardData.teacher_summary : [];
+  const studentsAttention = Array.isArray(dashboardData?.students_needing_attention) ? dashboardData.students_needing_attention : [];
+  const recentEvaluations = Array.isArray(dashboardData?.recent_evaluations) ? dashboardData.recent_evaluations : [];
+
+  const studentsByGrade = summary?.students_by_grade || {};
+  const allGrades = useMemo(() => Array.from({ length: 12 }, (_, i) => String(i + 1)), []);
+
+  if (loading && !dashboardData) return <div className="p-6"><Loading /></div>;
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      {/* Sidebar and Header */}
-      <Sidebar role={ROLES.SCHOOL_ADMIN} />
-      <Header />
-
-      {/* Main content */}
-      <main className="ml-64 pt-16 p-6 space-y-6">
-        {/* Breadcrumb */}
-        <Breadcrumb items={[{ label: "Dashboard", href: "/school-dashboard" }]} />
-
-        {/* Page header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold">School Dashboard</h1>
-            <p className="text-lg text-gray-600">Green Valley Public School</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col gap-3 mb-2">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-bold text-gray-900">{school.school_name || 'School Dashboard'}</h1>
+            <div className="flex items-center gap-2 text-sm text-gray-700">
+              <MapPin className="w-4 h-4 text-indigo-600" aria-hidden />
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-100">{school.location || 'Unknown location'}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <input
-              type="date"
-              className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm shadow-sm"
-            />
-            <span className="text-zinc-500">to</span>
-            <input
-              type="date"
-              className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm shadow-sm"
-            />
-            <button className="rounded-md bg-[#14B8A6] px-4 py-2 text-sm font-medium text-white shadow-sm hover:opacity-90">
-              Apply
-            </button>
-          </div>
+          <DateRangeSelector
+            from={dateRange.from}
+            to={dateRange.to}
+            lastUpdated={lastUpdated}
+            onChange={(dr) => setDateRange({ from: dr.from, to: dr.to })}
+            onRefresh={() => loadDashboard({ overlay: true })}
+          />
         </div>
+        {metadata?.date_range ? (
+          <p className="text-sm text-gray-600">Showing data for <span className="font-medium">{metadata.date_range.from}</span> to <span className="font-medium">{metadata.date_range.to}</span></p>
+        ) : null}
+        {error ? (
+          <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded p-2">{error} <button className="ml-2 text-indigo-600" onClick={() => loadDashboard({ overlay: true })}>Retry</button></div>
+        ) : null}
+      </div>
 
-        {/* Metrics */}
-        <SchoolMetrics />
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <button onClick={() => router.push(ROUTES.SCHOOL_ADMIN_STUDENTS)} className="text-left"><SummaryCard title="Students" value={school.total_students ?? 0} Icon={Users} colorClass="text-blue-600" bgClass="bg-blue-50" /></button>
+        <button onClick={() => router.push(ROUTES.SCHOOL_ADMIN_TEACHERS)} className="text-left"><SummaryCard title="Teachers" value={school.total_teachers ?? 0} Icon={UserCog} colorClass="text-green-600" bgClass="bg-green-50" /></button>
+        <button onClick={() => router.push(ROUTES.SCHOOL_ADMIN_PROGRAMS)} className="text-left"><SummaryCard title="Programs" value={school.programs_enrolled ?? 0} Icon={BookOpen} colorClass="text-purple-600" bgClass="bg-purple-50" /></button>
+        <button onClick={() => router.push(ROUTES.SCHOOL_ADMIN_EVALUATIONS)} className="text-left"><SummaryCard title="This Week" value={summary.evaluations_this_week ?? 0} Icon={CheckCircle} colorClass="text-orange-600" bgClass="bg-orange-50" /></button>
+      </div>
 
-        {/* Two-column layout */}
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Left column */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Weekly Schedule */}
-            <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Weekly Schedule</h3>
-                <span className="text-sm text-zinc-500">
-                  Week of {week[0].toLocaleDateString(undefined, { month: "short", day: "numeric" })}
-                </span>
-              </div>
-              <div className="mt-4 grid grid-cols-7 gap-3">
-                {week.map((date, idx) => {
-                  const isToday = date.toDateString() === today.toDateString();
-                  const key = date.getDay();
-                  const daySessions = sessions[key] || [];
-                  return (
-                    <div key={idx} className={`rounded-lg border p-3 ${isToday ? "border-[#14B8A6]" : "border-zinc-200"}`}>
-                      <div className="flex items-center justify-between">
-                        <span className={`text-sm font-medium ${isToday ? "text-[#14B8A6]" : "text-zinc-700"}`}>
-                          {date.toLocaleDateString(undefined, { weekday: "short" })}
-                        </span>
-                        <span className="text-xs text-zinc-500">
-                          {date.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
-                        </span>
-                      </div>
-                      <div className="mt-2 space-y-2">
-                        {daySessions.length === 0 && (
-                          <div className="text-xs text-zinc-400">No sessions</div>
-                        )}
-                        {daySessions.map((s, i) => (
-                          <button
-                            key={i}
-                            onClick={() => alert(`${s.name} at ${s.time}`)}
-                            className="w-full text-left"
-                          >
-                            <div className="flex items-center gap-2">
-                              <div className="h-2 w-2 rounded-full" style={{ backgroundColor: s.color }} />
-                              <span className="text-xs text-zinc-700">{s.time}</span>
-                            </div>
-                            <div className="mt-1 text-sm">{s.name}</div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
+      {/* Quick Actions */}
+      <Card className="rounded-lg border border-gray-200 p-6 bg-white shadow-sm hover:shadow-md">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <Button className="bg-indigo-600 text-white hover:bg-indigo-700" onClick={() => router.push(`${ROUTES.SCHOOL_ADMIN_STUDENTS}/new`)}><Plus className="w-4 h-4 mr-2" />Add Student</Button>
+          <Button className="bg-indigo-600 text-white hover:bg-indigo-700" onClick={() => router.push(`${ROUTES.SCHOOL_ADMIN_TEACHERS}/new`)}><Plus className="w-4 h-4 mr-2" />Add Teacher</Button>
+          <Button variant="outline" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_REPORTS)}><FileText className="w-4 h-4 mr-2" />View Reports</Button>
+        </div>
+      </Card>
+
+      {/* Students Needing Attention */}
+      <Card className="rounded-lg border border-amber-200 p-6 bg-amber-50">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-semibold text-amber-800">Students Needing Attention ({studentsAttention.length})</h2>
+          {studentsAttention.length > 5 ? (
+            <button className="text-sm text-indigo-600 hover:underline" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_STUDENTS)}>View All</button>
+          ) : null}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {studentsAttention.slice(0, 5).map((s, i) => (
+            <div key={i} className="rounded-md border border-amber-200 bg-white p-4">
+              <div className="flex items-center gap-2 text-amber-700 font-medium"><AlertTriangle className="w-4 h-4" aria-hidden />{s.student_name} • Grade {s.grade}</div>
+              <div className="text-sm text-gray-700 mt-1">📚 {s.program}</div>
+              <div className="text-sm text-gray-700">📅 {s.last_evaluation}</div>
+              <div className="text-sm text-gray-700">💡 Reason: {s.reason}</div>
+              <div className="flex gap-2 mt-3">
+                <Button size="sm" className="bg-indigo-600 text-white hover:bg-indigo-700" onClick={() => router.push(`${ROUTES.SCHOOL_ADMIN_PROGRAMS}/enroll`)}>Enroll in Program</Button>
+                <Button size="sm" variant="outline" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_STUDENTS)}>View Details</Button>
               </div>
             </div>
+          ))}
+          {studentsAttention.length === 0 ? (
+            <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded p-2">All students on track! ✅</div>
+          ) : null}
+        </div>
+      </Card>
 
-            {/* Recent Activity */}
-            <RecentActivity />
+      {/* Students by Grade */}
+      <Card className="rounded-lg border border-gray-200 p-6 bg-white shadow-sm hover:shadow-md">
+        <h2 className="text-lg font-semibold text-gray-800 mb-3">Students by Grade</h2>
+        <div className="flex flex-wrap gap-2">
+          {allGrades.map((g) => {
+            const count = Number(studentsByGrade[g] || 0);
+            const active = count > 0;
+            return (
+              <button key={g} onClick={() => router.push(`${ROUTES.SCHOOL_ADMIN_STUDENTS}?grade=${g}`)}
+                className={`px-3 py-1 rounded-full text-sm border ${active ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-gray-50 text-gray-500 border-gray-200'}`}
+                aria-label={`Grade ${g}: ${count} student${count !== 1 ? 's' : ''}`}
+              >Grade {g} ({count})</button>
+            );
+          })}
+        </div>
+        {Object.keys(studentsByGrade).length === 0 ? <p className="text-sm text-gray-600 mt-2">No students enrolled</p> : null}
+      </Card>
+
+      {/* Charts and Program Progress */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <PerformanceChart distribution={perfDist} />
+        <Card className="rounded-lg border border-gray-200 p-6 bg-white shadow-sm hover:shadow-md">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-lg font-semibold text-gray-800">Program Progress</h2>
+            {programProgress.length > 3 ? (
+              <button className="text-sm text-indigo-600 hover:underline" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_PROGRAMS)}>View All Programs</button>
+            ) : null}
           </div>
-
-          {/* Right column */}
-          <div className="space-y-6">
-            {/* Quick Actions */}
-            <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-              <QuickActions />
-            </div>
-
-            {/* Teacher Status */}
-            <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Teacher Status</h3>
-                <span className="text-sm text-zinc-500">Today</span>
-              </div>
-              <div className="mt-4 space-y-4">
-                {teacherStatus.map((t) => (
-                  <div key={t.name} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`h-2 w-2 rounded-full ${statusDot(t.status)}`} />
-                      <div>
-                        <p className="font-medium">{t.name}</p>
-                        <p className="text-sm text-zinc-500">{t.program}</p>
-                      </div>
+          <div className="space-y-3">
+            {programProgress.slice(0, 3).map((p, i) => (
+              <button key={i} className="w-full text-left" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_PROGRAMS)}>
+                <div className="rounded-md border border-gray-200 p-4">
+                  <div className="font-semibold text-gray-900">{p.program}</div>
+                  <div className="text-sm text-gray-600">{p.enrolled_students} student{p.enrolled_students !== 1 ? 's' : ''} enrolled</div>
+                  <div className="mt-2">
+                    <div className="h-2 bg-gray-100 rounded">
+                      <div className="h-2 rounded bg-indigo-600" style={{ width: `${Math.min(Math.max(p.avg_completion ?? 0, 0), 100)}%` }} />
                     </div>
-                    <span className="text-sm capitalize text-zinc-600">{t.status}</span>
+                    <div className="text-xs text-gray-600 mt-1">{(p.avg_completion ?? 0).toFixed(1)}% completion</div>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div className="flex items-center gap-1 text-sm text-gray-700 mt-1">
+                    <span>Avg Performance:</span>
+                    {Array.from({ length: 5 }, (_, j) => (
+                      <Star key={j} className={`w-4 h-4 ${j < Math.round(p.avg_performance ?? 0) ? 'text-yellow-500' : 'text-gray-300'}`} aria-hidden />
+                    ))}
+                  </div>
+                </div>
+              </button>
+            ))}
+            {programProgress.length === 0 ? <p className="text-sm text-gray-600">No programs enrolled</p> : null}
           </div>
-        </div>
+        </Card>
+      </div>
 
-        {/* Bottom: Student Performance Overview */}
-        <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Student Performance Overview</h3>
-            <a href="/students" className="text-sm font-medium text-[#14B8A6] hover:underline">
-              View All Students
-            </a>
-          </div>
-
-          <div className="mt-4 overflow-x-auto">
-            <table className="min-w-full text-left">
-              <thead>
-                <tr className="text-sm text-zinc-500">
-                  <th className="py-2 pr-4">Name</th>
-                  <th className="py-2 pr-4">Grade</th>
-                  <th className="py-2 pr-4">Programs</th>
-                  <th className="py-2 pr-4">Attendance</th>
-                  <th className="py-2 pr-4">Progress</th>
-                </tr>
-              </thead>
-              <tbody>
-                {students.map((s, i) => (
-                  <tr key={i} className="border-t border-zinc-100">
-                    <td className="py-3 pr-4 font-medium">{s.name}</td>
-                    <td className="py-3 pr-4">{s.grade}</td>
-                    <td className="py-3 pr-4">{s.programs}</td>
-                    <td className="py-3 pr-4">{s.attendance}%</td>
-                    <td className="py-3 pr-4">
-                      <div className="h-2 w-40 rounded bg-zinc-200">
-                        <div
-                          className="h-2 rounded bg-[#14B8A6]"
-                          style={{ width: `${s.progress}%` }}
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+      {/* Teacher Performance Summary */}
+      <Card className="rounded-lg border border-gray-200 p-6 bg-white shadow-sm hover:shadow-md">
+        <h2 className="text-lg font-semibold text-gray-800 mb-2">Teacher Performance</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {teacherSummary.sort((a, b) => (b.evaluations_this_week ?? 0) - (a.evaluations_this_week ?? 0)).map((t, i) => {
+            const score = Number(t.avg_performance ?? 0);
+            const color = score >= 4 ? 'border-green-200 bg-green-50' : score >= 3 ? 'border-yellow-200 bg-yellow-50' : 'border-red-200 bg-red-50';
+            return (
+              <button key={i} className="w-full text-left" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_TEACHERS)}>
+                <div className={`rounded-md border p-4 ${color}`}>
+                  <div className="flex items-center gap-2">
+                    <UserCog className="w-5 h-5 text-gray-600" aria-hidden />
+                    <div className="font-semibold text-gray-900">{t.teacher_name}</div>
+                  </div>
+                  <div className="text-sm text-gray-700 mt-1">{t.students_count} students • {t.evaluations_this_week} evals this week</div>
+                  <div className="flex items-center gap-1 text-sm text-gray-700 mt-1">
+                    <span>Avg:</span>
+                    {Array.from({ length: 5 }, (_, j) => (
+                      <Star key={j} className={`w-4 h-4 ${j < Math.round(score) ? 'text-yellow-500' : 'text-gray-300'}`} aria-hidden />
+                    ))}
+                    <span className="ml-1 font-medium">{score.toFixed(1)}</span>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+          {teacherSummary.length === 0 ? <p className="text-sm text-gray-600">No teachers assigned</p> : null}
         </div>
-      </main>
+      </Card>
+
+      {/* Recent Evaluations */}
+      <RecentEvaluations items={recentEvaluations.slice(0, 5)} />
+      <div className="flex justify-end">
+        <button className="text-sm text-indigo-600 hover:underline" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_EVALUATIONS)}>View All Evaluations</button>
+      </div>
+
+      {/* Footer metadata */}
+      <div className="text-xs text-gray-500 flex items-center justify-between">
+        <span>Last updated: {lastUpdated}</span>
+        {responseMs != null ? <span>Response time: {Number(responseMs).toFixed(2)}ms</span> : null}
+      </div>
     </div>
   );
 }

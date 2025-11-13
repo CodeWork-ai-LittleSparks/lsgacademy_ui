@@ -1,9 +1,9 @@
-import React from 'react'
+"use client";
+import React from 'react';
+import ReportsPage from '@/app/(super-admin)/reports/page';
 
-const page = () => {
-  return (
-    <div>page</div>
-  )
+export default function SchoolReportsPage() {
+  // Reuse the same ReportsPage; role-based logic hides School filter automatically
+  return <ReportsPage />;
 }
 
-export default page

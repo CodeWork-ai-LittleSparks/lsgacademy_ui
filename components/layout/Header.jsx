@@ -4,31 +4,32 @@ import { useRouter } from "next/navigation";
 import { Bell, ChevronDown, LogOut, User, Search, MessageCircle } from "lucide-react";
 import { useAuth } from "@/lib/auth/authContext";
 import Modal from "@/components/ui/Modal";
+import Button from "@/components/ui/Button";
 
 export default function Header() {
   const router = useRouter();
   const { user, logout } = useAuth() || {};
   const [menuOpen, setMenuOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutOpen, setLogoutOpen] = useState(false);
   const [q, setQ] = useState("");
   const menuRef = useRef(null);
-  const [confirmLogoutOpen, setConfirmLogoutOpen] = useState(false);
 
-  const handleLogout = () => {
+  const openLogoutModal = () => {
     setMenuOpen(false);
-    setConfirmLogoutOpen(true);
+    setLogoutOpen(true);
   };
 
   const confirmLogout = async () => {
     setLoggingOut(true);
     try {
       await logout();
-      // Logout function in context handles redirect
+      // Redirect handled by auth context
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
       setLoggingOut(false);
-      setConfirmLogoutOpen(false);
+      setLogoutOpen(false);
     }
   };
 
@@ -54,127 +55,127 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-30 h-16 border-b border-gray-200 bg-white/95 backdrop-blur-sm shadow-sm">
-      <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6">
-        {/* Left side - Logo/Brand space */}
-        <div className="flex-1">
-          {/* Logo or brand can go here */}
-        </div>
-
-        {/* Right side - Search and Icons */}
-        <div className="flex items-center gap-3">
-          {/* Compact Search Bar */}
-          <div className="hidden items-center gap-2 rounded-full border border-gray-200 bg-gray-50/50 px-6 py-2 shadow-sm transition-all duration-200 focus-within:border-primary-300 focus-within:bg-white focus-within:shadow-md md:flex">
-            <Search className="h-4 w-4 text-gray-400" />
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search..."
-              className="w-50 bg-transparent text-sm text-gray-700 placeholder-gray-400 outline-none focus:w-56 transition-all duration-200"
-            />
+    <header className="fixed top-0 left-0 right-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur-sm shadow-sm">
+      <div className="mx-auto max-w-7xl h-16 px-4 sm:px-6">
+        <div className="flex h-full items-center justify-between">
+          {/* Left: Brand */}
+          <div className="flex items-center gap-3">
+            <button
+              aria-label="Go to Dashboard"
+              onClick={() => router.push("/")}
+              className="flex items-center gap-2 rounded-xl px-2 py-1 text-gray-800 hover:text-purple-700 transition-colors"
+            >
+              <span className="text-base sm:text-lg font-bold tracking-tight">LSG Academy</span>
+            </button>
           </div>
 
-          {/* Chat Icon */}
-          <button className="relative inline-flex items-center justify-center p-2 text-gray-600 transition-all duration-200 hover:text-gray-800">
-            <MessageCircle className="h-5 w-5" />
-          </button>
-
-          {/* Notifications */}
-          <button className="relative inline-flex items-center justify-center p-2 text-gray-600 transition-all duration-200 hover:text-gray-800">
-            <Bell className="h-5 w-5" />
-            <span className="absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-medium text-white shadow-sm">
-              3
-            </span>
-          </button>
-
-          {/* User Profile Menu */}
-          <div className="relative" ref={menuRef}>
-          <button
-            onClick={() => setMenuOpen((v) => !v)}
-            className="inline-flex items-center gap-3 px-2 py-2 text-sm text-gray-700 transition-all duration-200 hover:text-gray-900 focus:outline-none"
-          >
-            {/* Profile Avatar */}
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-sm font-semibold text-white shadow-sm">
-              {getUserInitials(user?.email)}
+          {/* Right: Search + Actions */}
+          <div className="flex items-center gap-4">
+            {/* Search */}
+            <div className="hidden md:flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50/70 px-4 py-2 shadow-sm transition-colors focus-within:border-purple-300 focus-within:bg-white">
+              <Search className="h-4 w-4 text-gray-400" aria-hidden />
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search..."
+                aria-label="Search"
+                className="w-40 bg-transparent text-sm text-gray-700 placeholder-gray-400 outline-none focus:w-56 transition-all"
+              />
             </div>
-            <span className="hidden font-medium sm:inline">{user?.name || user?.email?.split("@")[0] || "Guest"}</span>
-            <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${menuOpen ? "rotate-180" : ""}`} />
-          </button>
 
-          {/* Dropdown Menu */}
-          {menuOpen && (
-            <div className="absolute right-0 top-full mt-2 w-56 origin-top-right animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-200">
-              <div className="rounded-lg border border-gray-200 bg-white shadow-lg ring-1 ring-black ring-opacity-5">
-                <div className="p-1">
-                  {/* User Info Section */}
-                  <div className="px-3 py-2 border-b border-gray-100">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-sm font-semibold text-white">
+            {/* Chat */}
+            <button
+              aria-label="Open Chat"
+              className="relative inline-flex items-center justify-center rounded-xl p-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+            >
+              <MessageCircle className="h-5 w-5" />
+            </button>
+
+            {/* Notifications */}
+            <button
+              aria-label="Open Notifications"
+              className="relative inline-flex items-center justify-center rounded-xl p-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+            >
+              <Bell className="h-5 w-5" />
+              <span className="absolute -right-1 -top-1 inline-flex h-2 w-2 rounded-full bg-red-500 shadow" />
+            </button>
+
+            {/* Profile Menu */}
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setMenuOpen((v) => !v)}
+                className="inline-flex items-center gap-3 rounded-xl px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                aria-haspopup="menu"
+                aria-expanded={menuOpen}
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-sm font-semibold text-white shadow-sm">
+                  {getUserInitials(user?.full_name || user?.email)}
+                </div>
+                <span className="hidden sm:inline font-medium truncate max-w-[160px]">
+                  {user?.full_name || user?.email?.split("@")[0] || "Guest"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${menuOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {menuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-64 origin-top-right rounded-2xl border border-gray-200 bg-white shadow-lg animate-in fade-in-0 zoom-in-95 slide-in-from-top-2">
+                  <div className="p-2">
+                    {/* User Info */}
+                    <div className="flex items-center gap-3 px-3 py-2 border-b border-gray-100">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-sm font-semibold text-white">
                         {getUserInitials(user?.email)}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {user?.name || user?.email?.split("@")[0] || "Guest"}
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">
+                          {user?.full_name || user?.email?.split("@")[0] || "Guest"}
                         </p>
                         <p className="text-xs text-gray-500 truncate">{user?.email || "guest@example.com"}</p>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Menu Items */}
-                  <div className="py-1">
-                    <button
-                      onClick={() => {
-                        router.push("/profile");
-                        setMenuOpen(false);
-                      }}
-                      className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
-                    >
-                      <User className="h-4 w-4 text-gray-400" />
-                      Profile
-                    </button>
-                    <button
-                      onClick={handleLogout}
-                      disabled={loggingOut}
-                      className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm text-red-600 transition-colors duration-150 hover:bg-red-50 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      {loggingOut ? 'Logging out...' : 'Logout'}
-                    </button>
+                    {/* Menu Items */}
+                    <div className="py-1" role="menu">
+                      <button
+                        onClick={() => {
+                          router.push("/profile");
+                          setMenuOpen(false);
+                        }}
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                      >
+                        <User className="h-4 w-4 text-gray-400" />
+                        Profile
+                      </button>
+                      <button
+                        onClick={openLogoutModal}
+                        disabled={loggingOut}
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        {loggingOut ? "Logging out..." : "Logout"}
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
-        </div>
-        </div>
-      </div>
-      {confirmLogoutOpen && (
-        <Modal onClose={() => setConfirmLogoutOpen(false)}>
-          <div role="dialog" aria-modal="true" className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl border border-gray-200">
-            <div className="flex items-center gap-3">
-              <LogOut className="h-5 w-5 text-red-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Are you sure you want to logout?</h3>
-            </div>
-            <p className="mt-2 text-sm text-gray-600">You will be redirected to the login page.</p>
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={() => setConfirmLogoutOpen(false)}
-                className="px-4 py-2 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmLogout}
-                disabled={loggingOut}
-                className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loggingOut ? 'Logging out...' : 'Logout'}
-              </button>
+              )}
             </div>
           </div>
-        </Modal>
-      )}
+        </div>
+      </div>
+
+      {/* Logout Confirmation Modal */}
+      <Modal isOpen={logoutOpen} onClose={() => setLogoutOpen(false)} title="Confirm Logout" size="content">
+        <div className="space-y-4">
+          <p className="text-sm text-gray-700">
+            Are you sure you want to log out of your account?
+          </p>
+          <div className="flex items-center justify-end gap-2">
+            <Button variant="secondary" onClick={() => setLogoutOpen(false)}>Cancel</Button>
+            <Button variant="danger" onClick={confirmLogout} disabled={loggingOut}>
+              {loggingOut ? "Logging out..." : "Log Out"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </header>
   );
 }

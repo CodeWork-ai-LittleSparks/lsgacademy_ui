@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { X, Save, Building, User, AlertCircle } from 'lucide-react';
+﻿import React, { useState, useEffect } from 'react';
+import { X, Save, Building, MapPin, User, Mail, Phone, BookOpen, Users, AlertCircle } from 'lucide-react';
+import { locations, statusOptions, programsData } from '@/lib/mockData';
 
-export default function SchoolForm({ school, onSubmit, onClose, isOpen }) {
+export default function SchoolForm({ school, onSave, onCancel, isOpen }) {
   const [formData, setFormData] = useState({
-    // School Details
     name: '',
     location: '',
-    contact_person: '',
-    contact_email: '',
-    contact_phone: '',
+    contactPerson: '',
+    email: '',
+    phone: '',
     address: '',
-    // School Admin Details
-    school_admin: {
-      full_name: '',
-      email: '',
-      phone: ''
-    }
+    website: '',
+    establishedYear: '',
+    programs: [],
+    students: '',
+    status: 'Active',
+    description: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -25,36 +25,34 @@ export default function SchoolForm({ school, onSubmit, onClose, isOpen }) {
   useEffect(() => {
     if (school) {
       setFormData({
-        // School Details
         name: school.name || '',
         location: school.location || '',
-        contact_person: school.contact_person || '',
-        contact_email: school.contact_email || '',
-        contact_phone: school.contact_phone || '',
+        contactPerson: school.contactPerson || '',
+        email: school.email || '',
+        phone: school.phone || '',
         address: school.address || '',
-        // School Admin Details
-        school_admin: {
-          full_name: school.school_admin?.full_name || '',
-          email: school.school_admin?.email || '',
-          phone: school.school_admin?.phone || ''
-        }
+        website: school.website || '',
+        establishedYear: school.establishedYear || '',
+        programs: school.programsList || [],
+        students: school.students?.toString() || '',
+        status: school.status || 'Active',
+        description: school.description || ''
       });
     } else {
       // Reset form for new school
       setFormData({
-        // School Details
         name: '',
         location: '',
-        contact_person: '',
-        contact_email: '',
-        contact_phone: '',
+        contactPerson: '',
+        email: '',
+        phone: '',
         address: '',
-        // School Admin Details
-        school_admin: {
-          full_name: '',
-          email: '',
-          phone: ''
-        }
+        website: '',
+        establishedYear: '',
+        programs: [],
+        students: '',
+        status: 'Active',
+        description: ''
       });
     }
     setErrors({});
@@ -63,46 +61,36 @@ export default function SchoolForm({ school, onSubmit, onClose, isOpen }) {
   const validateForm = () => {
     const newErrors = {};
 
-    // School Details validation
     if (!formData.name.trim()) {
       newErrors.name = 'School name is required';
     }
 
-    if (!formData.location.trim()) {
+    if (!formData.location) {
       newErrors.location = 'Location is required';
     }
 
-    if (!formData.contact_person.trim()) {
-      newErrors.contact_person = 'Contact person is required';
+    if (!formData.contactPerson.trim()) {
+      newErrors.contactPerson = 'Contact person is required';
     }
 
-    if (!formData.contact_email.trim()) {
-      newErrors.contact_email = 'Contact email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.contact_email)) {
-      newErrors.contact_email = 'Contact email is invalid';
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
     }
 
-    if (!formData.contact_phone.trim()) {
-      newErrors.contact_phone = 'Contact phone is required';
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^\+?[\d\s\-\(\)]+$/.test(formData.phone)) {
+      newErrors.phone = 'Please enter a valid phone number';
     }
 
-    if (!formData.address.trim()) {
-      newErrors.address = 'Address is required';
+    if (!formData.students || isNaN(formData.students) || parseInt(formData.students) < 0) {
+      newErrors.students = 'Please enter a valid number of students';
     }
 
-    // School Admin Details validation
-    if (!formData.school_admin.full_name.trim()) {
-      newErrors['school_admin.full_name'] = 'Admin full name is required';
-    }
-
-    if (!formData.school_admin.email.trim()) {
-      newErrors['school_admin.email'] = 'Admin email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.school_admin.email)) {
-      newErrors['school_admin.email'] = 'Admin email is invalid';
-    }
-
-    if (!formData.school_admin.phone.trim()) {
-      newErrors['school_admin.phone'] = 'Admin phone is required';
+    if (formData.programs.length === 0) {
+      newErrors.programs = 'Please select at least one program';
     }
 
     setErrors(newErrors);
@@ -111,25 +99,11 @@ export default function SchoolForm({ school, onSubmit, onClose, isOpen }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
-    // Handle nested school_admin fields
-    if (name.startsWith('school_admin.')) {
-      const adminField = name.split('.')[1];
-      setFormData(prev => ({
-        ...prev,
-        school_admin: {
-          ...prev.school_admin,
-          [adminField]: value
-        }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        school_admin: prev.school_admin || { full_name: '', email: '', phone: '' },
-        [name]: value
-      }));
-    }
-    
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
@@ -139,7 +113,22 @@ export default function SchoolForm({ school, onSubmit, onClose, isOpen }) {
     }
   };
 
+  const handleProgramChange = (programId) => {
+    setFormData(prev => ({
+      ...prev,
+      programs: prev.programs.includes(programId)
+        ? prev.programs.filter(id => id !== programId)
+        : [...prev.programs, programId]
+    }));
 
+    // Clear programs error
+    if (errors.programs) {
+      setErrors(prev => ({
+        ...prev,
+        programs: ''
+      }));
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -153,10 +142,13 @@ export default function SchoolForm({ school, onSubmit, onClose, isOpen }) {
     try {
       const schoolData = {
         ...formData,
+        students: parseInt(formData.students),
+        programs: formData.programs.length,
+        programsList: formData.programs,
         id: school?.id || Date.now().toString()
       };
 
-      await onSubmit(schoolData);
+      await onSave(schoolData);
     } catch (error) {
       console.error('Error saving school:', error);
     } finally {
@@ -178,22 +170,19 @@ export default function SchoolForm({ school, onSubmit, onClose, isOpen }) {
             </h2>
           </div>
           <button
-            onClick={onClose}
+            onClick={onCancel}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
           >
-            <X className="h-5 w-5 text-gray-700" />
+            <X className="h-5 w-5 text-gray-500" />
           </button>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[calc(90vh-140px)]">
           <div className="p-6 space-y-6">
-            {/* School Details */}
+            {/* Basic Information */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                <Building className="h-5 w-5 text-blue-600" />
-                School Details
-              </h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -204,7 +193,7 @@ export default function SchoolForm({ school, onSubmit, onClose, isOpen }) {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-800 ${
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none ${
                       errors.name ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="Enter school name"
@@ -221,16 +210,19 @@ export default function SchoolForm({ school, onSubmit, onClose, isOpen }) {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Location *
                   </label>
-                  <input
-                    type="text"
+                  <select
                     name="location"
                     value={formData.location}
                     onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-800 ${
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none ${
                       errors.location ? 'border-red-500' : 'border-gray-300'
                     }`}
-                    placeholder="Enter location"
-                  />
+                  >
+                    <option value="">Select location</option>
+                    {locations.filter(loc => loc !== 'All Locations').map(location => (
+                      <option key={location} value={location}>{location}</option>
+                    ))}
+                  </select>
                   {errors.location && (
                     <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
                       <AlertCircle className="h-4 w-4" />
@@ -245,115 +237,18 @@ export default function SchoolForm({ school, onSubmit, onClose, isOpen }) {
                   </label>
                   <input
                     type="text"
-                    name="contact_person"
-                    value={formData.contact_person}
+                    name="contactPerson"
+                    value={formData.contactPerson}
                     onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-800 ${
-                      errors.contact_person ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none ${
+                      errors.contactPerson ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="Enter contact person name"
                   />
-                  {errors.contact_person && (
+                  {errors.contactPerson && (
                     <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
                       <AlertCircle className="h-4 w-4" />
-                      {errors.contact_person}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Contact Email *
-                  </label>
-                  <input
-                    type="email"
-                    name="contact_email"
-                    value={formData.contact_email}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-800 ${
-                      errors.contact_email ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    placeholder="user@example.com"
-                  />
-                  {errors.contact_email && (
-                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                      <AlertCircle className="h-4 w-4" />
-                      {errors.contact_email}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Contact Phone *
-                  </label>
-                  <input
-                    type="tel"
-                    name="contact_phone"
-                    value={formData.contact_phone}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-800 ${
-                      errors.contact_phone ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    placeholder="Enter contact phone number"
-                  />
-                  {errors.contact_phone && (
-                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                      <AlertCircle className="h-4 w-4" />
-                      {errors.contact_phone}
-                    </p>
-                  )}
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Address *
-                  </label>
-                  <textarea
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    rows={3}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-800 ${
-                      errors.address ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    placeholder="Enter school address"
-                  />
-                  {errors.address && (
-                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                      <AlertCircle className="h-4 w-4" />
-                      {errors.address}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* School Admin Details */}
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                <User className="h-5 w-5 text-green-600" />
-                School Admin Details
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="school_admin.full_name"
-                    value={formData.school_admin?.full_name || ''}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-800 ${
-                      errors['school_admin.full_name'] ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    placeholder="Enter admin full name"
-                  />
-                  {errors['school_admin.full_name'] && (
-                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                      <AlertCircle className="h-4 w-4" />
-                      {errors['school_admin.full_name']}
+                      {errors.contactPerson}
                     </p>
                   )}
                 </div>
@@ -364,18 +259,18 @@ export default function SchoolForm({ school, onSubmit, onClose, isOpen }) {
                   </label>
                   <input
                     type="email"
-                    name="school_admin.email"
-                    value={formData.school_admin?.email || ''}
+                    name="email"
+                    value={formData.email}
                     onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-800 ${
-                      errors['school_admin.email'] ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none ${
+                      errors.email ? 'border-red-500' : 'border-gray-300'
                     }`}
-                    placeholder="user@example.com"
+                    placeholder="Enter email address"
                   />
-                  {errors['school_admin.email'] && (
+                  {errors.email && (
                     <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
                       <AlertCircle className="h-4 w-4" />
-                      {errors['school_admin.email']}
+                      {errors.email}
                     </p>
                   )}
                 </div>
@@ -386,22 +281,153 @@ export default function SchoolForm({ school, onSubmit, onClose, isOpen }) {
                   </label>
                   <input
                     type="tel"
-                    name="school_admin.phone"
-                    value={formData.school_admin?.phone || ''}
+                    name="phone"
+                    value={formData.phone}
                     onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-800 ${
-                      errors['school_admin.phone'] ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none ${
+                      errors.phone ? 'border-red-500' : 'border-gray-300'
                     }`}
-                    placeholder="Enter admin phone number"
+                    placeholder="Enter phone number"
                   />
-                  {errors['school_admin.phone'] && (
+                  {errors.phone && (
                     <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
                       <AlertCircle className="h-4 w-4" />
-                      {errors['school_admin.phone']}
+                      {errors.phone}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Status
+                  </label>
+                  <select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  >
+                    {statusOptions.filter(status => status !== 'All Status').map(status => (
+                      <option key={status} value={status}>{status}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Additional Information */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Additional Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Address
+                  </label>
+                  <textarea
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    placeholder="Enter school address"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Website
+                  </label>
+                  <input
+                    type="url"
+                    name="website"
+                    value={formData.website}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    placeholder="https://example.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Established Year
+                  </label>
+                  <input
+                    type="number"
+                    name="establishedYear"
+                    value={formData.establishedYear}
+                    onChange={handleInputChange}
+                    min="1800"
+                    max={new Date().getFullYear()}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    placeholder="Enter year"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Number of Students *
+                  </label>
+                  <input
+                    type="number"
+                    name="students"
+                    value={formData.students}
+                    onChange={handleInputChange}
+                    min="0"
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none ${
+                      errors.students ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter number of students"
+                  />
+                  {errors.students && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                      <AlertCircle className="h-4 w-4" />
+                      {errors.students}
                     </p>
                   )}
                 </div>
               </div>
+            </div>
+
+            {/* Programs */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Programs *</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {programsData.map(program => (
+                  <label key={program.id} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.programs.includes(program.id)}
+                      onChange={() => handleProgramChange(program.id)}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="h-4 w-4 text-gray-500" />
+                      <span className="text-sm font-medium text-gray-700">{program.name}</span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+              {errors.programs && (
+                <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="h-4 w-4" />
+                  {errors.programs}
+                </p>
+              )}
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                placeholder="Enter school description..."
+              />
             </div>
           </div>
 
@@ -409,7 +435,7 @@ export default function SchoolForm({ school, onSubmit, onClose, isOpen }) {
           <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
             <button
               type="button"
-              onClick={onClose}
+              onClick={onCancel}
               className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
             >
               Cancel
