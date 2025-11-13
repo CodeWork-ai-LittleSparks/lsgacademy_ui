@@ -9,6 +9,23 @@ import { getReportTypes, generateReport, downloadReport } from '@/lib/api/servic
 import { getSchools } from '@/lib/api/services/schoolService';
 import { getPrograms } from '@/lib/api/services/programService';
 import { getTeachers } from '@/lib/api/services/teacherService';
+import { 
+  FileText, 
+  Download, 
+  Calendar, 
+  Filter, 
+  TrendingUp, 
+  Users, 
+  School, 
+  BookOpen,
+  AlertCircle,
+  Check,
+  Sparkles,
+  BarChart3,
+  FileSpreadsheet,
+  X,
+  Settings
+} from 'lucide-react';
 
 const PERFORMANCE_CATEGORIES = [
   { value: '', label: 'All' },
@@ -79,7 +96,6 @@ export default function ReportsPage() {
   });
   const [errors, setErrors] = useState({});
   const [generating, setGenerating] = useState(false);
-  // History removed per requirement; downloads now trigger immediately after generation
 
   useEffect(() => {
     let mounted = true;
@@ -95,9 +111,7 @@ export default function ReportsPage() {
         }
       })
       .finally(() => mounted && setTypesLoading(false));
-    // preload dropdowns
     getPrograms({ limit: 50, page: 1 }).then((r) => setPrograms(r.success ? (r.data?.programs || []) : []));
-    // Normalize teachers: service returns { data: { teachers: [] } }
     getTeachers({ limit: 50, page: 1 }).then((r) => setTeachers(r.success ? (r.data?.teachers || []) : []));
     if (showSchool) {
       getSchools({ limit: 50, page: 1 }).then((r) => {
@@ -106,13 +120,10 @@ export default function ReportsPage() {
       });
     }
     return () => { mounted = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showSchool]);
 
   const selectedType = reportTypes.find((t) => t.type === form.report_type);
-
   const expectedColumns = selectedType?.columns || [];
-
   const typeOptions = reportTypes.map((t) => ({ value: t.type, label: t.name }));
   const formatOptions = formats.map((f) => ({ value: f.format, label: f.name }));
 
@@ -141,7 +152,6 @@ export default function ReportsPage() {
     if (df > dt) e.date_to = 'End date must be after start date';
     const rangeDays = Math.ceil((dt - df) / (1000 * 60 * 60 * 24));
     if (rangeDays > 365) e.date_to = 'Date range cannot exceed 1 year';
-    // At least one filter selected besides dates
     const hasExtraFilter = [form.school_id, form.program_id, form.level_id, form.teacher_id, form.student_id, form.performance_category, form.grade].some((v) => v && String(v).length > 0);
     if (!hasExtraFilter) e.filters = 'Select at least one filter besides dates';
     setErrors(e);
@@ -168,7 +178,6 @@ export default function ReportsPage() {
       setErrors({ submit: res.error || 'Failed to generate report. Please try again.' });
       return;
     }
-    // Immediately trigger the file download (history UI removed)
     const dl = await downloadReport(res.data.reportId, res.data.format);
     if (!dl.success) {
       setErrors({ submit: dl.error || 'Download failed. Please try again.' });
@@ -200,130 +209,325 @@ export default function ReportsPage() {
   ];
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Reports & Analytics</h1>
-        <p className="text-gray-600">Generate custom reports and analyze data</p>
+    <div className="p-4 sm:p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div className="p-2.5 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl shadow-sm">
+          <BarChart3 className="w-6 h-6 text-indigo-600" strokeWidth={2.5} />
+        </div>
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
+            Reports & Analytics
+          </h1>
+          <p className="text-sm text-gray-600 font-medium mt-0.5">
+            Generate custom reports and analyze data
+          </p>
+        </div>
       </div>
 
       {/* Generate New Report */}
-      <div className="rounded-lg border bg-white p-4 space-y-4">
-        <h2 className="text-lg font-semibold">Generate New Report</h2>
+      <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-5 sm:p-6 shadow-lg">
+        <div className="flex items-center gap-3 mb-5 pb-4 border-b-2 border-gray-200">
+          <div className="p-2 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl shadow-sm">
+            <FileSpreadsheet className="w-5 h-5 text-blue-600" strokeWidth={2.5} />
+          </div>
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
+            Generate New Report
+          </h2>
+        </div>
+
         {typesLoading ? (
-          <div className="text-sm text-gray-600">Loading report types...</div>
+          <div className="flex items-center gap-2 p-4 bg-blue-50 rounded-xl">
+            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm font-semibold text-blue-700">Loading report types...</span>
+          </div>
         ) : typesError ? (
-          <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded p-2">{typesError}</div>
+          <div className="flex items-start gap-3 p-4 rounded-xl border-2 border-red-200 bg-red-50">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" strokeWidth={2.5} />
+            <p className="text-sm font-semibold text-red-700">{typesError}</p>
+          </div>
         ) : (
-          <div className="space-y-3">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="space-y-5">
+            {/* Report Type & Format */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-gray-700">Report Type *</label>
-                <Dropdown options={typeOptions} value={form.report_type} onChange={(e) => setForm({ ...form, report_type: e.target.value })} />
-                {selectedType ? (
-                  <p className="text-xs text-gray-600 mt-1">{selectedType.description}</p>
-                ) : null}
-                {errors.report_type ? (<p className="text-xs text-red-600 mt-1">{errors.report_type}</p>) : null}
+                <label className="flex items-center gap-2 text-xs font-bold text-gray-900 uppercase tracking-wide mb-2">
+                  <FileText className="w-4 h-4 text-purple-600" strokeWidth={2.5} />
+                  Report Type *
+                </label>
+                <Dropdown 
+                  options={typeOptions} 
+                  value={form.report_type} 
+                  onChange={(e) => setForm({ ...form, report_type: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 bg-white text-gray-900 font-medium transition-all duration-200"
+                />
+                {selectedType && (
+                  <p className="text-xs text-gray-600 mt-2 font-medium">{selectedType.description}</p>
+                )}
+                {errors.report_type && (
+                  <p className="text-xs text-red-600 mt-2 font-semibold">{errors.report_type}</p>
+                )}
               </div>
+
               <div>
-                <label className="text-sm text-gray-700">Format *</label>
+                <label className="flex items-center gap-2 text-xs font-bold text-gray-900 uppercase tracking-wide mb-2">
+                  <Download className="w-4 h-4 text-blue-600" strokeWidth={2.5} />
+                  Format *
+                </label>
                 <div className="flex items-center gap-4 mt-1">
-                  <label className="inline-flex items-center gap-2 text-sm">
-                    <input type="radio" name="format" value="csv" checked={form.format === 'csv'} onChange={(e) => setForm({ ...form, format: e.target.value })} />
-                    CSV
+                  <label className="flex items-center gap-2 px-4 py-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 bg-white">
+                    <input 
+                      type="radio" 
+                      name="format" 
+                      value="csv" 
+                      checked={form.format === 'csv'} 
+                      onChange={(e) => setForm({ ...form, format: e.target.value })}
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <span className="text-sm font-semibold text-gray-900">CSV</span>
                   </label>
-                  <label className="inline-flex items-center gap-2 text-sm opacity-60">
-                    <input type="radio" name="format" value="pdf" disabled checked={form.format === 'pdf'} onChange={(e) => setForm({ ...form, format: e.target.value })} />
-                    PDF <Badge>Coming Soon</Badge>
+                  <label className="flex items-center gap-2 px-4 py-3 border-2 border-gray-200 rounded-xl cursor-not-allowed opacity-60 bg-white">
+                    <input 
+                      type="radio" 
+                      name="format" 
+                      value="pdf" 
+                      disabled 
+                      checked={form.format === 'pdf'} 
+                      onChange={(e) => setForm({ ...form, format: e.target.value })}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm font-semibold text-gray-700">PDF</span>
+                    <Badge className="ml-1 px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded-lg font-bold">Coming Soon</Badge>
                   </label>
                 </div>
-                {errors.format ? (<p className="text-xs text-red-600 mt-1">{errors.format}</p>) : null}
+                {errors.format && (
+                  <p className="text-xs text-red-600 mt-2 font-semibold">{errors.format}</p>
+                )}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {/* Date Range */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-gray-700">From *</label>
-                <Input type="date" value={form.date_from} onChange={(e) => setForm({ ...form, date_from: e.target.value })} />
-                {errors.date_from ? (<p className="text-xs text-red-600 mt-1">{errors.date_from}</p>) : null}
+                <label className="flex items-center gap-2 text-xs font-bold text-gray-900 uppercase tracking-wide mb-2">
+                  <Calendar className="w-4 h-4 text-green-600" strokeWidth={2.5} />
+                  From Date *
+                </label>
+                <Input 
+                  type="date" 
+                  value={form.date_from} 
+                  onChange={(e) => setForm({ ...form, date_from: e.target.value })}
+                  className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-green-100 focus:border-green-500 bg-white text-gray-900 font-medium transition-all duration-200"
+                />
+                {errors.date_from && (
+                  <p className="text-xs text-red-600 mt-2 font-semibold">{errors.date_from}</p>
+                )}
               </div>
               <div>
-                <label className="text-sm text-gray-700">To *</label>
-                <Input type="date" value={form.date_to} onChange={(e) => setForm({ ...form, date_to: e.target.value })} />
-                {errors.date_to ? (<p className="text-xs text-red-600 mt-1">{errors.date_to}</p>) : null}
+                <label className="flex items-center gap-2 text-xs font-bold text-gray-900 uppercase tracking-wide mb-2">
+                  <Calendar className="w-4 h-4 text-green-600" strokeWidth={2.5} />
+                  To Date *
+                </label>
+                <Input 
+                  type="date" 
+                  value={form.date_to} 
+                  onChange={(e) => setForm({ ...form, date_to: e.target.value })}
+                  className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-green-100 focus:border-green-500 bg-white text-gray-900 font-medium transition-all duration-200"
+                />
+                {errors.date_to && (
+                  <p className="text-xs text-red-600 mt-2 font-semibold">{errors.date_to}</p>
+                )}
               </div>
             </div>
 
             {/* Dynamic Filters */}
-            <div className="pt-2 border-t">
-              <p className="text-sm font-medium text-gray-800 mb-2">Filters</p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="pt-4 border-t-2 border-gray-200">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="p-1.5 bg-orange-100 rounded-lg">
+                  <Filter className="w-4 h-4 text-orange-600" strokeWidth={2.5} />
+                </div>
+                <p className="text-sm font-bold text-gray-900 uppercase tracking-wide">Filters</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {showSchool && (
                   <div>
-                    <label className="text-sm text-gray-700">School</label>
-                    <Dropdown value={form.school_id} onChange={(e) => setForm({ ...form, school_id: e.target.value })} options={schoolOptions} />
+                    <label className="flex items-center gap-2 text-xs font-semibold text-gray-900 mb-2">
+                      <School className="w-3.5 h-3.5 text-purple-600" strokeWidth={2.5} />
+                      School
+                    </label>
+                    <Dropdown 
+                      value={form.school_id} 
+                      onChange={(e) => setForm({ ...form, school_id: e.target.value })} 
+                      options={schoolOptions}
+                      className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-100 focus:border-purple-500 bg-white text-gray-900 font-medium text-sm"
+                    />
                   </div>
                 )}
                 {(showStudentProgressFilters || showTeacherPerformanceFilters || showProgramAnalyticsFilters || showEvaluationHistoryFilters) && (
                   <div>
-                    <label className="text-sm text-gray-700">Program</label>
-                    <Dropdown value={form.program_id} onChange={(e) => setForm({ ...form, program_id: e.target.value })} options={programOptions} />
+                    <label className="flex items-center gap-2 text-xs font-semibold text-gray-900 mb-2">
+                      <BookOpen className="w-3.5 h-3.5 text-blue-600" strokeWidth={2.5} />
+                      Program
+                    </label>
+                    <Dropdown 
+                      value={form.program_id} 
+                      onChange={(e) => setForm({ ...form, program_id: e.target.value })} 
+                      options={programOptions}
+                      className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 bg-white text-gray-900 font-medium text-sm"
+                    />
                   </div>
                 )}
                 {(showStudentProgressFilters || showTeacherPerformanceFilters || showEvaluationHistoryFilters) && (
                   <div>
-                    <label className="text-sm text-gray-700">Teacher</label>
-                    <Dropdown value={form.teacher_id} onChange={(e) => setForm({ ...form, teacher_id: e.target.value })} options={teacherOptions} />
+                    <label className="flex items-center gap-2 text-xs font-semibold text-gray-900 mb-2">
+                      <Users className="w-3.5 h-3.5 text-green-600" strokeWidth={2.5} />
+                      Teacher
+                    </label>
+                    <Dropdown 
+                      value={form.teacher_id} 
+                      onChange={(e) => setForm({ ...form, teacher_id: e.target.value })} 
+                      options={teacherOptions}
+                      className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-100 focus:border-green-500 bg-white text-gray-900 font-medium text-sm"
+                    />
                   </div>
                 )}
                 {(showStudentProgressFilters || showEvaluationHistoryFilters) && (
                   <div>
-                    <label className="text-sm text-gray-700">Student (UUID)</label>
-                    <Input value={form.student_id} onChange={(e) => setForm({ ...form, student_id: e.target.value })} placeholder="uuid-optional" />
+                    <label className="flex items-center gap-2 text-xs font-semibold text-gray-900 mb-2">
+                      <Users className="w-3.5 h-3.5 text-orange-600" strokeWidth={2.5} />
+                      Student UUID
+                    </label>
+                    <Input 
+                      value={form.student_id} 
+                      onChange={(e) => setForm({ ...form, student_id: e.target.value })} 
+                      placeholder="Optional UUID"
+                      className="px-3 py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-100 focus:border-orange-500 bg-white text-gray-900 font-medium text-sm placeholder:text-gray-500"
+                    />
                   </div>
                 )}
                 {showStudentProgressFilters && (
                   <>
                     <div>
-                      <label className="text-sm text-gray-700">Performance Category</label>
-                      <Dropdown value={form.performance_category} onChange={(e) => setForm({ ...form, performance_category: e.target.value })} options={PERFORMANCE_CATEGORIES} />
+                      <label className="flex items-center gap-2 text-xs font-semibold text-gray-900 mb-2">
+                        <TrendingUp className="w-3.5 h-3.5 text-pink-600" strokeWidth={2.5} />
+                        Performance
+                      </label>
+                      <Dropdown 
+                        value={form.performance_category} 
+                        onChange={(e) => setForm({ ...form, performance_category: e.target.value })} 
+                        options={PERFORMANCE_CATEGORIES}
+                        className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-100 focus:border-pink-500 bg-white text-gray-900 font-medium text-sm"
+                      />
                     </div>
                     <div>
-                      <label className="text-sm text-gray-700">Grade</label>
-                      <Dropdown value={form.grade} onChange={(e) => setForm({ ...form, grade: e.target.value })} options={GRADES} />
+                      <label className="flex items-center gap-2 text-xs font-semibold text-gray-900 mb-2">
+                        <Sparkles className="w-3.5 h-3.5 text-indigo-600" strokeWidth={2.5} />
+                        Grade
+                      </label>
+                      <Dropdown 
+                        value={form.grade} 
+                        onChange={(e) => setForm({ ...form, grade: e.target.value })} 
+                        options={GRADES}
+                        className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 bg-white text-gray-900 font-medium text-sm"
+                      />
                     </div>
                   </>
                 )}
               </div>
-              {errors.filters ? (<p className="text-xs text-red-600 mt-2">{errors.filters}</p>) : null}
+              {errors.filters && (
+                <div className="flex items-start gap-2 mt-3 p-3 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
+                  <AlertCircle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" strokeWidth={2.5} />
+                  <p className="text-xs font-semibold text-yellow-700">{errors.filters}</p>
+                </div>
+              )}
             </div>
 
-            <div className="flex items-center justify-between">
-              <Button variant="ghost" onClick={resetFilters}>Clear Filters</Button>
-              <Button variant="primary" disabled={generating || pdfDisabled} onClick={onGenerate}>{generating ? 'Generating...' : 'Generate Report'}</Button>
+            {/* Actions */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t-2 border-gray-200">
+              <Button 
+                variant="ghost" 
+                onClick={resetFilters}
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border-2 border-gray-300 hover:bg-gray-50 text-gray-900 font-semibold transition-all duration-200"
+              >
+                <X className="w-4 h-4" strokeWidth={2.5} />
+                Clear Filters
+              </Button>
+              <Button 
+                variant="primary" 
+                disabled={generating || pdfDisabled} 
+                onClick={onGenerate}
+                className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                {generating ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span className="text-white">Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4" strokeWidth={2.5} />
+                    <span className="text-white">Generate Report</span>
+                  </>
+                )}
+              </Button>
             </div>
-            {errors.submit ? (<div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded p-2">{errors.submit}</div>) : null}
+            
+            {errors.submit && (
+              <div className="flex items-start gap-3 p-4 rounded-xl border-2 border-red-200 bg-red-50 animate-in fade-in duration-300">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" strokeWidth={2.5} />
+                <p className="text-sm font-semibold text-red-700">{errors.submit}</p>
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {/* Report Preview */}
-      <div className="rounded-lg border bg-white p-4">
-        <h2 className="text-lg font-semibold">Report Preview</h2>
+      <div className="rounded-2xl border-2 border-gray-200 bg-white p-5 sm:p-6 shadow-md">
+        <div className="flex items-center gap-3 mb-4 pb-4 border-b-2 border-gray-200">
+          <div className="p-2 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl shadow-sm">
+            <FileText className="w-5 h-5 text-purple-600" strokeWidth={2.5} />
+          </div>
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
+            Report Preview
+          </h2>
+        </div>
+
         {selectedType ? (
-          <div className="mt-2">
-            <p className="text-sm text-gray-800 font-medium">{selectedType.name}</p>
-            <p className="text-xs text-gray-600">{selectedType.description}</p>
-            <p className="text-xs text-gray-700 mt-2">Expected Columns ({expectedColumns.length}):</p>
-            <div className="flex flex-wrap gap-2 mt-1">
-              {expectedColumns.map((c) => (<span key={c} className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-800">{c}</span>))}
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-base font-bold text-gray-900 mb-1">{selectedType.name}</h3>
+              <p className="text-sm text-gray-600 font-medium">{selectedType.description}</p>
+            </div>
+            
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-1.5 bg-blue-100 rounded-lg">
+                  <Settings className="w-4 h-4 text-blue-600" strokeWidth={2.5} />
+                </div>
+                <p className="text-xs font-bold text-gray-900 uppercase tracking-wide">
+                  Expected Columns ({expectedColumns.length})
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {expectedColumns.map((c) => (
+                  <span key={c} className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 text-blue-700 text-xs font-semibold">
+                    {c}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         ) : (
-          <p className="text-sm text-gray-600">Select a report type to preview its columns.</p>
+          <div className="flex flex-col items-center justify-center py-8">
+            <div className="p-4 bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl shadow-inner mb-3">
+              <FileText className="w-10 h-10 text-gray-400" strokeWidth={1.5} />
+            </div>
+            <p className="text-sm font-semibold text-gray-600">Select a report type to preview columns</p>
+          </div>
         )}
       </div>
-
-      {/* Report History section removed */}
     </div>
   );
 }
