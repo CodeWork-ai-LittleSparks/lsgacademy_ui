@@ -5,7 +5,7 @@ import {
   getSchoolPrograms,
   getCategories,
 } from "@/lib/api/services/programService";
-import { toPublicAssetUrl } from "@/lib/utils/urlutils";
+import { toPublicAssetUrl } from "@/lib/utils/urlUtils";
 
 function CategoryBadge({ category }) {
   const bg = category?.color || "#e5e7eb"; // default gray

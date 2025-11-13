@@ -17,7 +17,7 @@ import {
   getPerformanceCategories,
   updatePerformanceCategories,
 } from '@/lib/api/services/settingsService';
-import { toPublicAssetUrl } from '@/lib/utils/urlutils';
+import { toPublicAssetUrl } from '@/lib/utils/urlUtils';
 
 function Tabs({ active, onChange, items }) {
   return (
