@@ -23,6 +23,8 @@ if (apiUrl) {
 }
 
 const nextConfig = {
+  // Use standalone output so Azure SWA can boot the server faster and more reliably
+  output: 'standalone',
   images: {
     remotePatterns,
   },

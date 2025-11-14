@@ -1,21 +1,37 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { Search, MapPin, Filter, RefreshCw, Sparkles, ArrowUpAZ, ArrowDownZA, ChevronUp, ChevronDown } from 'lucide-react';
+import { Search, MapPin, Filter, RefreshCw, RotateCcw, Sparkles, ArrowUpAZ, ArrowDownZA, ChevronUp, ChevronDown } from 'lucide-react';
 
-export default function SchoolFilters({ filters, onFilterChange, onRefresh }) {
+export default function SchoolFilters({ filters, onFilterChange }) {
   const [localSearch, setLocalSearch] = useState(filters?.search || '');
-  const [debounceTimer, setDebounceTimer] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Keep local input in sync if filters.search is changed externally (e.g., via URL init)
   useEffect(() => {
-    if (debounceTimer) clearTimeout(debounceTimer);
-    const timer = setTimeout(() => {
-      onFilterChange?.({ ...filters, search: localSearch });
-    }, 500);
-    setDebounceTimer(timer);
-    return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localSearch]);
+    const incoming = filters?.search || '';
+    if (incoming !== localSearch) {
+      setLocalSearch(incoming);
+    }
+  }, [filters?.search]);
+
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setLocalSearch(val);
+    // Trigger API call immediately on each change
+    onFilterChange?.({ ...filters, search: val });
+  };
+
+  const handleClearFilters = () => {
+    setLocalSearch('');
+    onFilterChange?.({
+      ...filters,
+      search: '',
+      location: '',
+      status: 'all',
+      sort_by: 'name',
+      sort_order: 'asc',
+    });
+  };
 
   const activeFiltersCount = [
     filters?.location,
@@ -25,12 +41,12 @@ export default function SchoolFilters({ filters, onFilterChange, onRefresh }) {
   ].filter(Boolean).length;
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 shadow-md overflow-hidden transition-all duration-300">
+    <div className="rounded-2xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 overflow-hidden transition-all duration-300">
       {/* Compact Header */}
-      <div className="p-4 sm:p-5 flex items-center justify-between gap-3">
+      <div className="p-3 sm:p-3 flex items-center justify-between gap-3">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
         >
           <Filter className="w-4 h-4" strokeWidth={2.5} />
           <span className="hidden sm:inline">Filters</span>
@@ -45,49 +61,51 @@ export default function SchoolFilters({ filters, onFilterChange, onRefresh }) {
             <ChevronDown className="w-4 h-4 ml-1" strokeWidth={2.5} />
           )}
         </button>
-
-        {/* Active Filters Summary (when collapsed) */}
-        {!isExpanded && activeFiltersCount > 0 && (
-          <div className="flex items-center gap-2 flex-1 overflow-x-auto px-2">
-            {filters?.search && (
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-100 border border-purple-200 rounded-full whitespace-nowrap text-xs font-medium text-purple-700">
-                <Search className="w-3 h-3" />
-                {filters.search.length > 15 ? filters.search.substring(0, 15) + '...' : filters.search}
-              </div>
-            )}
-            {filters?.location && (
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 border border-blue-200 rounded-full whitespace-nowrap text-xs font-medium text-blue-700">
-                <MapPin className="w-3 h-3" />
-                {filters.location}
-              </div>
-            )}
-            {filters?.status !== 'all' && (
-              <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full whitespace-nowrap text-xs font-medium border ${
-                filters.status === 'active' 
-                  ? 'bg-green-100 border-green-200 text-green-700' 
-                  : 'bg-red-100 border-red-200 text-red-700'
-              }`}>
-                <div className={`w-2 h-2 rounded-full ${filters.status === 'active' ? 'bg-green-500' : 'bg-red-500'}`} />
-                {filters.status === 'active' ? 'Active' : 'Inactive'}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Refresh Button */}
-        <button
-          onClick={onRefresh}
-          className="flex items-center justify-center w-10 h-10 rounded-xl border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all duration-200"
-          title="Refresh"
-        >
-          <RefreshCw className="w-4 h-4 text-gray-600 hover:text-purple-600" strokeWidth={2.5} />
-        </button>
+        <div className="flex items-center gap-2 ml-auto">
+          {/* Active Filters Summary (when collapsed) */}
+          {!isExpanded && activeFiltersCount > 0 && (
+            <div className="flex items-center gap-2 overflow-x-auto px-2">
+              {filters?.search && (
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-100 border border-purple-200 rounded-full whitespace-nowrap text-xs font-medium text-purple-700">
+                  <Search className="w-3 h-3" />
+                  {filters.search.length > 15 ? filters.search.substring(0, 15) + '...' : filters.search}
+                </div>
+              )}
+              {filters?.location && (
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 border border-blue-200 rounded-full whitespace-nowrap text-xs font-medium text-blue-700">
+                  <MapPin className="w-3 h-3" />
+                  {filters.location}
+                </div>
+              )}
+              {filters?.status !== 'all' && (
+                <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full whitespace-nowrap text-xs font-medium border ${
+                  filters.status === 'active' 
+                    ? 'bg-green-100 border-green-200 text-green-700' 
+                    : 'bg-red-100 border-red-200 text-red-700'
+                }`}>
+                  <div className={`w-2 h-2 rounded-full ${filters.status === 'active' ? 'bg-green-500' : 'bg-red-500'}`} />
+                  {filters.status === 'active' ? 'Active' : 'Inactive'}
+                </div>
+              )}
+            </div>
+          )}
+          {activeFiltersCount > 0 && (
+            <button
+              onClick={handleClearFilters}
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 border border-gray-200 rounded-full whitespace-nowrap text-xs font-semibold text-gray-700 hover:bg-purple-50 hover:border-purple-300 transition-all"
+              title="Clear filters"
+            >
+              <RotateCcw className="w-3 h-3" strokeWidth={2.5} />
+              Clear
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Expanded Filter Fields - Single Row */}
       {isExpanded && (
-        <div className="px-4 sm:px-5 pb-4 sm:pb-5 border-t border-gray-200">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="px-4 sm:px-5 pb-2 sm:pb-3 border-t border-gray-200">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 pt-2">
             {/* Search Input */}
             <div>
               <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2">
@@ -101,12 +119,16 @@ export default function SchoolFilters({ filters, onFilterChange, onRefresh }) {
                   type="text"
                   placeholder="School name..."
                   value={localSearch}
-                  onChange={(e) => setLocalSearch(e.target.value)}
+                  onChange={handleSearchChange}
                   className="w-full pl-12 pr-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 bg-white text-sm font-medium text-gray-900 placeholder:text-gray-400 transition-all duration-200 hover:border-purple-300"
                 />
                 {localSearch && (
                   <button
-                    onClick={() => setLocalSearch('')}
+                    onClick={() => {
+                      setLocalSearch('');
+                      // When clearing, call API without search param
+                      onFilterChange?.({ ...filters, search: '' });
+                    }}
                     className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-lg transition-colors"
                   >
                     <span className="text-gray-400 hover:text-gray-600 text-lg">×</span>
