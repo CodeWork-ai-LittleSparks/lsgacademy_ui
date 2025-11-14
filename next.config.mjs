@@ -92,10 +92,66 @@
 /** next.config.js **/
 
 
+// /** @type {import('next').NextConfig} */
+// const nextConfig = {
+//   output: 'standalone',
+// };
+
+// export default nextConfig;
+
+
+
+
 /** @type {import('next').NextConfig} */
+import path from 'path';
+
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+let remotePatterns = [];
+
+if (apiUrl) {
+  try {
+    const u = new URL(apiUrl);
+    remotePatterns.push({
+      protocol: u.protocol.replace(':', ''), // "https"
+      hostname: u.hostname,                  // "api.dev.lsgacademy.in"
+      pathname: '/uploads/**',
+      ...(u.port ? { port: u.port } : {}),
+    });
+  } catch (e) {
+    remotePatterns.push({
+      protocol: 'http',
+      hostname: 'localhost',
+      port: '8000',
+      pathname: '/uploads/**',
+    });
+  }
+} else {
+  remotePatterns.push({
+    protocol: 'http',
+    hostname: 'localhost',
+    port: '8000',
+    pathname: '/uploads/**',
+  });
+}
+
 const nextConfig = {
+  /** 🔥 Required for Azure Static Web Apps backend */
   output: 'standalone',
+
+  /** 🔥 Required — SWA does NOT support Next.js image optimizer */
+  images: {
+    unoptimized: true,
+    remotePatterns,
+  },
+
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      '@': path.resolve(process.cwd()),
+    };
+    return config;
+  },
 };
 
 export default nextConfig;
-
