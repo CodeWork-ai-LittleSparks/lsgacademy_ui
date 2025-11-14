@@ -309,6 +309,62 @@
 #           action: "close"
 
 
+# name: Azure Static Web Apps CI/CD
+ 
+# on:
+#   push:
+#     branches:
+#       - testing
+#   pull_request:
+#     types: [opened, synchronize, reopened, closed]
+#     branches:
+#       - testing
+ 
+# jobs:
+#   build_and_deploy_job:
+#     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+#     runs-on: ubuntu-latest
+#     name: Build and Deploy Job
+#     steps:
+#       - uses: actions/checkout@v3
+#         with:
+#           submodules: true
+#           lfs: false
+ 
+#       # Install dependencies
+#       - name: Install dependencies
+#         run: npm install --legacy-peer-deps
+
+#       # 🔥 Build Next.js manually (REQUIRED for standalone)
+#       - name: Build Next.js App
+#         run: npm run build
+ 
+#       - name: Build And Deploy
+#         id: builddeploy
+#         uses: Azure/static-web-apps-deploy@v1
+#         with:
+#           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AGREEABLE_DESERT_0172E5700 }}
+#           repo_token: ${{ secrets.GITHUB_TOKEN }}
+#           action: "upload"
+
+#           ###### Mandatory Fixes ######
+#           skip_app_build: true        # 🔥 prevents Oryx from breaking standalone build
+#           app_location: "/"
+#           api_location: ""
+#           output_location: ".next"    # Upload your standalone build
+#           ###### End Config ######
+ 
+#   close_pull_request_job:
+#     if: github.event_name == 'pull_request' && github.event.action == 'closed'
+#     runs-on: ubuntu-latest
+#     name: Close Pull Request Job
+#     steps:
+#       - name: Close Pull Request
+#         id: closepullrequest
+#         uses: Azure/static-web-apps-deploy@v1
+#         with:
+#           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AGREEABLE_DESERT_0172E5700 }}
+#           action: "close"
 name: Azure Static Web Apps CI/CD
  
 on:
@@ -330,12 +386,18 @@ jobs:
         with:
           submodules: true
           lfs: false
+
+      # ⭐ Force Node 18 (Azure backend uses Node 18)
+      - name: Use Node 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
  
-      # Install dependencies
+      # Install dependencies on Node 18
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      # 🔥 Build Next.js manually (REQUIRED for standalone)
+      # Build Next.js manually
       - name: Build Next.js App
         run: npm run build
  
@@ -346,13 +408,10 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AGREEABLE_DESERT_0172E5700 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-
-          ###### Mandatory Fixes ######
-          skip_app_build: true        # 🔥 prevents Oryx from breaking standalone build
+          skip_app_build: true
           app_location: "/"
           api_location: ""
-          output_location: ".next"    # Upload your standalone build
-          ###### End Config ######
+          output_location: ".next"
  
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
