@@ -174,7 +174,7 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "export",
+  // REMOVE output: "export"
 };
 
 export default nextConfig;
