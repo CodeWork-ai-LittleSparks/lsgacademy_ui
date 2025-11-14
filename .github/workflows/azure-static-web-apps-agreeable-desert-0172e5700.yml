@@ -81,6 +81,8 @@ jobs:
         run: |
           npm ci
           npm run build
+          npm run export
+
 
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
@@ -89,7 +91,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "/"
-          output_location: ""  
+          output_location: "out"
           skip_app_build: true
 
   close_pull_request_job:
