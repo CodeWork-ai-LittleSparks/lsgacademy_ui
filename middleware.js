@@ -87,11 +87,13 @@ export const config = {
     /*
      * Match all request paths except for the ones starting with:
      * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
+     * - _next/ (all Next internal assets and endpoints)
+     * - _azure (Azure SWA internal endpoints)
+     * - _internal (internal health/warm-up endpoints)
+     * - _swa (Static Web Apps internal endpoints)
      * - favicon.ico (favicon file)
      * - public folder files
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|images).*)',
+    '/((?!api|_next/|_azure|_internal|_swa|favicon.ico|images).*)',
   ],
 };
