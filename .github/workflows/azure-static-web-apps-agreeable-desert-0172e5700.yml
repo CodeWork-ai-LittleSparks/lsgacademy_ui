@@ -83,7 +83,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "/"               # root of the repo; change if app is in a subfolder
-          output_location: "build"        # change to "dist" or other folder if your build outputs elsewhere
+          output_location: ""        # change to "dist" or other folder if your build outputs elsewhere
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
