@@ -63,6 +63,8 @@ if (apiUrl) {
 }
 
 const nextConfig = {
+  output: "standalone",
+
   images: {
     remotePatterns,
   },
