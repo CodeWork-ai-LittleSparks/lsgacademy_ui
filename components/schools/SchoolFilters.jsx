@@ -4,18 +4,22 @@ import { Search, MapPin, Filter, RefreshCw, Sparkles, ArrowUpAZ, ArrowDownZA, Ch
 
 export default function SchoolFilters({ filters, onFilterChange, onRefresh }) {
   const [localSearch, setLocalSearch] = useState(filters?.search || '');
-  const [debounceTimer, setDebounceTimer] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Keep local input in sync if filters.search is changed externally (e.g., via URL init)
   useEffect(() => {
-    if (debounceTimer) clearTimeout(debounceTimer);
-    const timer = setTimeout(() => {
-      onFilterChange?.({ ...filters, search: localSearch });
-    }, 500);
-    setDebounceTimer(timer);
-    return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localSearch]);
+    const incoming = filters?.search || '';
+    if (incoming !== localSearch) {
+      setLocalSearch(incoming);
+    }
+  }, [filters?.search]);
+
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setLocalSearch(val);
+    // Trigger API call immediately on each change
+    onFilterChange?.({ ...filters, search: val });
+  };
 
   const activeFiltersCount = [
     filters?.location,
@@ -101,12 +105,16 @@ export default function SchoolFilters({ filters, onFilterChange, onRefresh }) {
                   type="text"
                   placeholder="School name..."
                   value={localSearch}
-                  onChange={(e) => setLocalSearch(e.target.value)}
+                  onChange={handleSearchChange}
                   className="w-full pl-12 pr-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 bg-white text-sm font-medium text-gray-900 placeholder:text-gray-400 transition-all duration-200 hover:border-purple-300"
                 />
                 {localSearch && (
                   <button
-                    onClick={() => setLocalSearch('')}
+                    onClick={() => {
+                      setLocalSearch('');
+                      // When clearing, call API without search param
+                      onFilterChange?.({ ...filters, search: '' });
+                    }}
                     className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-lg transition-colors"
                   >
                     <span className="text-gray-400 hover:text-gray-600 text-lg">×</span>

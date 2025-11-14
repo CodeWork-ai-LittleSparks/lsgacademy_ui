@@ -8,11 +8,10 @@ import PerformanceChart from '@/components/dashboard/PerformanceChart';
 import TrendChart from '@/components/dashboard/TrendChart';
 import SchoolsTable from '@/components/dashboard/SchoolsTable';
 import ProgramsTable from '@/components/dashboard/ProgramsTable';
-// import ActivityFeed from '@/components/dashboard/ActivityFeed';
 import RecentEvaluations from '@/components/dashboard/RecentEvaluations';
 import DateRangeSelector from '@/components/dashboard/DateRangeSelector';
 import Loading from '@/components/common/Loading';
-import { Building2, Users, GraduationCap, BookOpen, ClipboardList } from 'lucide-react';
+import { Building2, Users, GraduationCap, BookOpen, ClipboardList, Sparkles } from 'lucide-react';
 
 function defaultDateRange() {
   const to = new Date();
@@ -56,20 +55,36 @@ export default function SuperAdminDashboardPage() {
     return () => clearInterval(id);
   }, [loadDashboard]);
 
-  // No-op helpers removed; trends are driven from provided JSON
-
   if (loading && !dashboardData) return (
-    <div className="p-6 min-h-[90vh] grid place-items-center">
-      <Loading />
+    <div className="p-4 sm:p-6 lg:p-8 min-h-[90vh] grid place-items-center bg-gradient-to-br from-gray-50 via-purple-50/30 to-blue-50/30">
+      <div className="flex flex-col items-center gap-4">
+        <Loading />
+      </div>
     </div>
   );
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 mb-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
-        <div className="flex items-center justify-between">
+    <div className="min-h-full bg-gradient-to-br from-gray-50 via-purple-50/20 to-blue-50/20">
+      <div className="max-w-[1920px] mx-auto space-y-6 sm:space-y-8 p-4 sm:p-6 lg:p-8">
+        {/* Header Section */}
+        <div className="flex flex-col gap-4 sm:gap-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl shadow-lg">
+                <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-white" strokeWidth={2.5} />
+              </div>
+              <div>
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
+                  Dashboard
+                </h1>
+                <p className="text-sm sm:text-base text-gray-600 font-medium mt-1">
+                  Welcome back, {user?.full_name || 'Admin'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Date Range Selector */}
           <DateRangeSelector
             from={dateRange.from}
             to={dateRange.to}
@@ -77,54 +92,101 @@ export default function SuperAdminDashboardPage() {
             onChange={(dr) => setDateRange({ from: dr.from, to: dr.to })}
             onRefresh={() => loadDashboard({ force: true, overlay: true })}
           />
-          {error ? (
-            <div className="text-sm text-red-600">{error} <button className="ml-2 text-indigo-600" onClick={() => loadDashboard({ force: true })}>Retry</button></div>
-          ) : null}
+
+          {/* Error Message */}
+          {error && (
+            <div className="flex items-center justify-between p-4 bg-red-50 border-l-4 border-red-500 rounded-lg shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                <p className="text-sm font-semibold text-red-800">{error}</p>
+              </div>
+              <button 
+                className="px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+                onClick={() => loadDashboard({ force: true })}
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
+          {/* Date Range Info */}
+          {metadata?.date_range && (
+            <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl shadow-sm">
+              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" />
+              <p className="text-sm font-semibold text-gray-700">
+                Showing data from{' '}
+                <span className="font-bold text-blue-700">{metadata.date_range.from}</span>
+                {' '}to{' '}
+                <span className="font-bold text-blue-700">{metadata.date_range.to}</span>
+              </p>
+            </div>
+          )}
         </div>
-        {metadata?.date_range ? (
-          <p className="text-sm text-gray-600 font-medium">Showing data for <span className="font-medium">{metadata.date_range.from}</span> to <span className="font-medium">{metadata.date_range.to}</span></p>
-        ) : null}
-      </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-4 sm:gap-6">
-        <SummaryCard title="Total Schools" subtitle="All Schools" value={dashboardData?.summary?.total_schools ?? 0} Icon={Building2} colorClass="text-blue-600" bgClass="bg-blue-50" />
-        <SummaryCard title="Active Schools" subtitle="Currently Active" value={dashboardData?.summary?.active_schools ?? 0} Icon={Building2} colorClass="text-teal-600" bgClass="bg-teal-50" />
-        <SummaryCard title="Total Programs" subtitle="Available Programs" value={dashboardData?.summary?.total_programs ?? 0} Icon={BookOpen} colorClass="text-orange-600" bgClass="bg-orange-50" />
-        <SummaryCard title="Total Teachers" subtitle="All Teachers" value={dashboardData?.summary?.total_teachers ?? 0} Icon={Users} colorClass="text-green-600" bgClass="bg-green-50" />
-        <SummaryCard title="Total Students" subtitle="All Students" value={dashboardData?.summary?.total_students ?? 0} Icon={GraduationCap} colorClass="text-purple-600" bgClass="bg-purple-50" />
-        <SummaryCard title="Total Evaluations" subtitle="All Time" value={dashboardData?.summary?.total_evaluations ?? 0} Icon={ClipboardList} colorClass="text-sky-600" bgClass="bg-sky-50" />
-        <SummaryCard title="Evaluations This Week" subtitle="Last 7 Days" value={dashboardData?.summary?.evaluations_this_week ?? 0} Icon={ClipboardList} colorClass="text-indigo-600" bgClass="bg-indigo-50" />
-      </div>
+        {/* Summary Cards */}
+        <div>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2">
+            <div className="w-1 h-6 bg-gradient-to-b from-purple-600 to-blue-600 rounded-full" />
+            Overview Statistics
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-5">
+            <SummaryCard title="Total Schools" subtitle="All Schools" value={dashboardData?.summary?.total_schools ?? 0} Icon={Building2} colorClass="text-blue-600" bgClass="bg-blue-50" />
+            <SummaryCard title="Active Schools" subtitle="Currently Active" value={dashboardData?.summary?.active_schools ?? 0} Icon={Building2} colorClass="text-teal-600" bgClass="bg-teal-50" />
+            <SummaryCard title="Total Programs" subtitle="Available Programs" value={dashboardData?.summary?.total_programs ?? 0} Icon={BookOpen} colorClass="text-orange-600" bgClass="bg-orange-50" />
+            <SummaryCard title="Total Teachers" subtitle="All Teachers" value={dashboardData?.summary?.total_teachers ?? 0} Icon={Users} colorClass="text-green-600" bgClass="bg-green-50" />
+            <SummaryCard title="Total Students" subtitle="All Students" value={dashboardData?.summary?.total_students ?? 0} Icon={GraduationCap} colorClass="text-purple-600" bgClass="bg-purple-50" />
+            <SummaryCard title="Total Evaluations" subtitle="All Time" value={dashboardData?.summary?.total_evaluations ?? 0} Icon={ClipboardList} colorClass="text-sky-600" bgClass="bg-sky-50" />
+            <SummaryCard title="Evaluations This Week" subtitle="Last 7 Days" value={dashboardData?.summary?.evaluations_this_week ?? 0} Icon={ClipboardList} colorClass="text-indigo-600" bgClass="bg-indigo-50" />
+          </div>
+        </div>
 
-      {/* Analytics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        <AnalyticsCard title="New Students This Month" value={dashboardData?.trends?.new_students_this_month ?? 0} trend={dashboardData?.trends?.growth_percentage ?? null} description="Month over month" />
-        <AnalyticsCard title="New Evaluations This Month" value={dashboardData?.trends?.new_evaluations_this_month ?? 0} trend={null} description="Total added this month" />
-        <AnalyticsCard title="Growth Percentage" value={(dashboardData?.trends?.growth_percentage ?? 0).toFixed(1)} suffix="%" trend={dashboardData?.trends?.growth_percentage ?? null} description="Overall growth" />
-      </div>
+        {/* Analytics Cards */}
+        <div>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2">
+            <div className="w-1 h-6 bg-gradient-to-b from-purple-600 to-blue-600 rounded-full" />
+            Key Metrics
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            <AnalyticsCard title="New Students This Month" value={dashboardData?.trends?.new_students_this_month ?? 0} trend={dashboardData?.trends?.growth_percentage ?? null} description="Month over month growth" />
+            <AnalyticsCard title="New Evaluations This Month" value={dashboardData?.trends?.new_evaluations_this_month ?? 0} trend={null} description="Total added this month" />
+            <AnalyticsCard title="Growth Percentage" value={(dashboardData?.trends?.growth_percentage ?? 0).toFixed(1)} suffix="%" trend={dashboardData?.trends?.growth_percentage ?? null} description="Overall platform growth" />
+          </div>
+        </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        <PerformanceChart distribution={dashboardData?.performance_distribution} />
-        {Array.isArray(dashboardData?.trends?.daily_evaluations) && dashboardData.trends.daily_evaluations.length > 0 ? (
-          <TrendChart data={dashboardData.trends.daily_evaluations} />
-        ) : null}
-      </div>
+        {/* Charts */}
+        <div>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2">
+            <div className="w-1 h-6 bg-gradient-to-b from-purple-600 to-blue-600 rounded-full" />
+            Performance Insights
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+            <PerformanceChart distribution={dashboardData?.performance_distribution} />
+            {Array.isArray(dashboardData?.trends?.daily_evaluations) && dashboardData.trends.daily_evaluations.length > 0 && (
+              <TrendChart data={dashboardData.trends.daily_evaluations} />
+            )}
+          </div>
+        </div>
 
-      {/* Tables */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        <SchoolsTable data={dashboardData?.top_schools || []} />
-        <ProgramsTable data={dashboardData?.program_stats || []} />
-      </div>
+        {/* Tables */}
+        <div>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2">
+            <div className="w-1 h-6 bg-gradient-to-b from-purple-600 to-blue-600 rounded-full" />
+            Top Performers
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+            <SchoolsTable data={dashboardData?.top_schools || []} />
+            <ProgramsTable data={dashboardData?.program_stats || []} />
+          </div>
+        </div>
 
-      {/* Recent Evaluations */}
-      <RecentEvaluations items={dashboardData?.recent_evaluations || []} />
-
-      {/* Footer metadata */}
-      <div className="text-xs text-gray-500 flex items-center justify-between">
-        <span>Last updated: {lastUpdated}</span>
-        {responseMs != null ? <span>Response time: {Number(responseMs).toFixed(2)}ms</span> : null}
+        {/* Recent Evaluations */}
+        <div>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2">
+            <div className="w-1 h-6 bg-gradient-to-b from-purple-600 to-blue-600 rounded-full" />
+            Recent Activity
+          </h2>
+          <RecentEvaluations items={dashboardData?.recent_evaluations || []} />
+        </div>
       </div>
     </div>
   );

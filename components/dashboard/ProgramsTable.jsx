@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Card from '@/components/ui/Card';
 import Table from '@/components/ui/Table';
-import { GraduationCap, ArrowUpDown, ArrowUp, ArrowDown, ExternalLink } from 'lucide-react';
+import { BookOpen, GraduationCap, ArrowUpDown, ArrowUp, ArrowDown, ExternalLink, Sparkles, School } from 'lucide-react';
 
 function sortBy(items, key, asc = true) {
   return [...items].sort((a, b) => {
@@ -46,13 +46,17 @@ export default function ProgramsTable({ data = [] }) {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-gradient-to-br from-purple-100 to-blue-100 rounded-xl shadow-sm">
-              <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" strokeWidth={2.5} />
+            <div className="p-2.5 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl shadow-sm">
+              <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" strokeWidth={2.5} />
             </div>
-            <h3 className="text-base sm:text-lg font-bold text-gray-800 tracking-tight">
-              Program Enrollment Overview
-            </h3>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
+                Program Enrollment Overview
+              </h3>
+              <p className="text-xs text-gray-600 mt-0.5 font-medium">Active program statistics</p>
+            </div>
           </div>
+          
           <button 
             className="flex items-center gap-2 text-sm font-semibold text-purple-600 hover:text-purple-700 hover:underline transition-all duration-200 px-3 py-1.5 rounded-lg hover:bg-purple-50"
             onClick={() => router.push('/programs')}
@@ -67,39 +71,30 @@ export default function ProgramsTable({ data = [] }) {
           <Table className="min-w-full">
             <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
               <tr className="text-left text-xs sm:text-sm">
-                <th 
-                  className="py-3 sm:py-4 px-3 sm:px-4 font-bold text-gray-700 cursor-pointer hover:bg-purple-50 transition-colors duration-200"
-                  onClick={() => onSort('program_name')}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="uppercase tracking-wide">Program Name</span>
+                <th className="py-3 sm:py-4 px-3 sm:px-4 font-bold text-gray-700 uppercase tracking-wide whitespace-nowrap">
+                  <div className="flex items-center gap-2 cursor-pointer hover:text-purple-700 transition-colors" onClick={() => onSort('program_name')}>
+                    <BookOpen className="w-4 h-4 text-purple-600" strokeWidth={2.5} />
+                    <span>Program Name</span>
                     {getSortIcon('program_name')}
                   </div>
                 </th>
-                <th 
-                  className="py-3 sm:py-4 px-3 sm:px-4 font-bold text-gray-700 cursor-pointer hover:bg-purple-50 transition-colors duration-200 text-right"
-                  onClick={() => onSort('enrolled_schools')}
-                >
-                  <div className="flex items-center justify-end gap-2">
-                    <span className="uppercase tracking-wide">Schools</span>
+                <th className="py-3 sm:py-4 px-3 sm:px-4 font-bold text-gray-700 uppercase tracking-wide text-center whitespace-nowrap">
+                  <div className="flex items-center justify-center gap-2 cursor-pointer hover:text-purple-700 transition-colors" onClick={() => onSort('enrolled_schools')}>
+                    <School className="w-4 h-4 text-blue-600" strokeWidth={2.5} />
+                    <span>Schools</span>
                     {getSortIcon('enrolled_schools')}
                   </div>
                 </th>
-                <th 
-                  className="py-3 sm:py-4 px-3 sm:px-4 font-bold text-gray-700 cursor-pointer hover:bg-purple-50 transition-colors duration-200 text-right"
-                  onClick={() => onSort('total_students')}
-                >
-                  <div className="flex items-center justify-end gap-2">
-                    <span className="uppercase tracking-wide">Students</span>
+                <th className="py-3 sm:py-4 px-3 sm:px-4 font-bold text-gray-700 uppercase tracking-wide text-center whitespace-nowrap">
+                  <div className="flex items-center justify-center gap-2 cursor-pointer hover:text-purple-700 transition-colors" onClick={() => onSort('total_students')}>
+                    <GraduationCap className="w-4 h-4 text-purple-600" strokeWidth={2.5} />
+                    <span>Students</span>
                     {getSortIcon('total_students')}
                   </div>
                 </th>
-                <th 
-                  className="py-3 sm:py-4 px-3 sm:px-4 font-bold text-gray-700 cursor-pointer hover:bg-purple-50 transition-colors duration-200"
-                  onClick={() => onSort('completion_rate')}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="uppercase tracking-wide">Completion</span>
+                <th className="py-3 sm:py-4 px-3 sm:px-4 font-bold text-gray-700 uppercase tracking-wide whitespace-nowrap">
+                  <div className="flex items-center gap-2 cursor-pointer hover:text-purple-700 transition-colors" onClick={() => onSort('completion_rate')}>
+                    <span>Completion</span>
                     {getSortIcon('completion_rate')}
                   </div>
                 </th>
@@ -110,13 +105,13 @@ export default function ProgramsTable({ data = [] }) {
                 <tr>
                   <td className="py-8 sm:py-12 px-3 sm:px-4 text-center" colSpan={4}>
                     <div className="flex flex-col items-center gap-3">
-                      <div className="p-4 bg-gray-100 rounded-2xl">
-                        <GraduationCap className="w-8 h-8 text-gray-400" strokeWidth={1.5} />
+                      <div className="p-4 bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl shadow-inner">
+                        <BookOpen className="w-10 h-10 text-gray-400" strokeWidth={1.5} />
                       </div>
-                      <p className="text-sm sm:text-base font-semibold text-gray-600">
+                      <p className="text-base font-semibold text-gray-600">
                         No program statistics available
                       </p>
-                      <p className="text-xs sm:text-sm text-gray-500">
+                      <p className="text-sm text-gray-500">
                         Program data will appear here once available
                       </p>
                     </div>
@@ -128,6 +123,7 @@ export default function ProgramsTable({ data = [] }) {
                   className="group/row hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 cursor-pointer transition-all duration-200 hover:shadow-sm"
                   onClick={() => goToProgram(p)}
                 >
+                  {/* Program Name */}
                   <td className="py-3 sm:py-4 px-3 sm:px-4">
                     <div className="flex items-center gap-2">
                       <div className="w-1.5 h-8 bg-gradient-to-b from-purple-400 to-blue-400 rounded-full opacity-0 group-hover/row:opacity-100 transition-opacity duration-200" />
@@ -136,19 +132,31 @@ export default function ProgramsTable({ data = [] }) {
                       </span>
                     </div>
                   </td>
-                  <td className="py-3 sm:py-4 px-3 sm:px-4 text-right">
-                    <span className="inline-flex items-center justify-center min-w-[30px] px-3 py-1 text-xs sm:text-sm font-bold text-blue-700 bg-blue-100 rounded-full">
-                      {p.enrolled_schools ?? 0}
-                    </span>
+
+                  {/* Schools Count */}
+                  <td className="py-3 sm:py-4 px-3 sm:px-4 text-center">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 rounded-xl">
+                      <School className="w-4 h-4 text-blue-600" strokeWidth={2.5} />
+                      <span className="text-xs sm:text-sm font-bold text-blue-700">
+                        {p.enrolled_schools ?? 0}
+                      </span>
+                    </div>
                   </td>
-                  <td className="py-3 sm:py-4 px-3 sm:px-4 text-right">
-                    <span className="inline-flex items-center justify-center min-w-[30px] px-3 py-1 text-xs sm:text-sm font-bold text-purple-700 bg-purple-100 rounded-full">
-                      {p.total_students ?? 0}
-                    </span>
+
+                  {/* Students Count */}
+                  <td className="py-3 sm:py-4 px-3 sm:px-4 text-center">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-100 rounded-xl">
+                      <GraduationCap className="w-4 h-4 text-purple-600" strokeWidth={2.5} />
+                      <span className="text-xs sm:text-sm font-bold text-purple-700">
+                        {p.total_students ?? 0}
+                      </span>
+                    </div>
                   </td>
+
+                  {/* Completion Rate */}
                   <td className="py-3 sm:py-4 px-3 sm:px-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex-1 max-w-[90px] sm:max-w-[105px]">
+                      <div className="flex-1 max-w-[120px] sm:max-w-[140px]">
                         <div className="relative h-2.5 sm:h-3 bg-gray-100 rounded-full overflow-hidden shadow-inner">
                           <div 
                             className="absolute inset-y-0 left-0 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full transition-all duration-500 shadow-sm"
@@ -158,7 +166,7 @@ export default function ProgramsTable({ data = [] }) {
                           </div>
                         </div>
                       </div>
-                      <span className="text-xs sm:text-sm font-bold text-gray-900 min-w-[34px]">
+                      <span className="text-xs sm:text-sm font-bold text-gray-900 min-w-[42px]">
                         {(p.completion_rate ?? 0).toFixed(1)}%
                       </span>
                     </div>
@@ -167,6 +175,14 @@ export default function ProgramsTable({ data = [] }) {
               ))}
             </tbody>
           </Table>
+        </div>
+
+        {/* Footer Note */}
+        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-200">
+          <Sparkles className="w-4 h-4 text-purple-600 flex-shrink-0" strokeWidth={2.5} />
+          <p className="text-xs sm:text-sm text-gray-600 font-medium">
+            Showing top 5 programs by enrollment
+          </p>
         </div>
       </div>
     </Card>
