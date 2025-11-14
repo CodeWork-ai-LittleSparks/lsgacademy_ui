@@ -163,7 +163,7 @@ function SchoolsPageContent() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-3">
+      <div className="max-w-full mx-auto px-2 sm:px-6 lg:px-4 space-y-3">
         {/* Filters Bar */}
         <SchoolFilters filters={filters} onFilterChange={onFilterChange} />
 
@@ -221,7 +221,7 @@ function SchoolsPageContent() {
                 
                 {/* Table view on desktop */}
                 <div className="hidden md:block">
-                  <div className="rounded-2xl border border-gray-200 bg-white shadow-lg overflow-hidden">
+                  <div className="rounded-2xl overflow-hidden">
                     <DataTable
                       columns={columns}
                       data={schools}

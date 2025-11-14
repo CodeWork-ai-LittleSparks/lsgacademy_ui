@@ -186,9 +186,9 @@ export default function DataTable({
   // but do not surface any active filter badges in the toolbar.
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-2">
       {/* Enhanced Toolbar */}
-      <div className="rounded-2xl border border-gray-200 bg-gradient-to-r from-white to-gray-50 p-5 sm:p-6 shadow-md">
+      <div className="rounded-2xl bg-gradient-to-r from-white to-gray-5">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           {/* Left Section */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full lg:w-auto">
@@ -279,7 +279,7 @@ export default function DataTable({
       </div>
 
       {/* Enhanced Table Container */}
-      <div className="overflow-hidden rounded-2xl border-2 border-gray-200 bg-white shadow-lg">
+      <div className="overflow-hidden rounded-2xl border-2 border-gray-200 bg-white">
         <div className="overflow-x-auto">
           <Table className="min-w-full">
             <thead className={`bg-gradient-to-r from-gray-50 to-gray-100 ${stickyHeader ? 'sticky top-0 z-10' : ''}`}>
@@ -397,7 +397,7 @@ export default function DataTable({
       </div>
 
       {/* Enhanced Pagination */}
-      <div className="rounded-2xl border border-gray-200 bg-gradient-to-r from-white to-gray-50 p-5 sm:p-6 shadow-md">
+      <div className="rounded-2xl border border-gray-200 bg-gradient-to-r from-white to-gray-50 p-4 sm:p-4 shadow-md">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
             <Sparkles className="w-4 h-4 text-purple-600" strokeWidth={2.5} />
