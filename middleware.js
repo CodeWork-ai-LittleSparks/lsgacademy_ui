@@ -94,6 +94,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder files
      */
-    '/((?!api|_next/|_azure|_internal|_swa|favicon.ico|images).*)',
+    '/((?!api|_next/|_azure|_internal|.swa|.auth/|favicon.ico|images).*)',
   ],
 };
