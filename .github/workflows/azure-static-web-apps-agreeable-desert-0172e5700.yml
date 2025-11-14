@@ -74,14 +74,10 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
 
       - name: Build and Export Next.js app
-        run: |
-          npm ci
-          npm run build
-          npm run export
+        run: npm ci && npm run build
+
 
 
       - name: Deploy to Azure Static Web Apps
@@ -91,7 +87,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "/"
-          output_location: "out"
+          output_location: ".next/export"
           skip_app_build: true
 
   close_pull_request_job:
