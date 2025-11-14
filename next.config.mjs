@@ -23,6 +23,7 @@ if (apiUrl) {
 }
 
 const nextConfig = {
+  output: "export",
   images: {
     remotePatterns,
   },
