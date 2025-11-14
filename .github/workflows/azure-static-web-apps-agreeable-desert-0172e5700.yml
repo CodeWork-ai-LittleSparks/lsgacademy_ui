@@ -62,30 +62,27 @@ jobs:
     name: Build and Deploy Job
 
     steps:
-      # Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           submodules: false
           lfs: false
 
-      # Setup Node.js with caching
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
 
-      # Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      # Build and export the Next.js app
       - name: Build and Export Next.js app
         run: |
+          npm ci
           npm run build
+          npm run export
 
-      # Deploy exported static site to Azure
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
@@ -93,7 +90,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "/"
-          output_location: ""  # exported Next.js build folder
+          output_location: "out"  
           skip_app_build: true
 
   close_pull_request_job:
