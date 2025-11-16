@@ -112,9 +112,6 @@ export default function SchoolsTable({ data = [] }) {
                       <p className="text-base font-semibold text-gray-600">
                         No top schools data available
                       </p>
-                      <p className="text-sm text-gray-500">
-                        Performance rankings will appear here once data is available
-                      </p>
                     </div>
                   </td>
                 </tr>

@@ -196,9 +196,9 @@ function ProgramsPageContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/20 to-blue-50/20">
+    <div className="min-h-full bg-gradient-to-br from-gray-50 via-purple-50/20 to-blue-50/20">
       {/* Modern Header with Gradient Background */}
-      <div className="sticky top-0 z-10 backdrop-blur-sm bg-white/80 border-b border-gray-200 shadow-sm">
+      <div className="sticky top-0 z-10">
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             {/* Left Section - Title */}
@@ -219,14 +219,6 @@ function ProgramsPageContent() {
             {/* Right Section - Action Buttons */}
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <Button 
-                variant="outline" 
-                onClick={handleRefresh}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all duration-200 font-semibold hover:scale-105"
-              >
-                <RefreshCw className="h-4 w-4" strokeWidth={2.5} />
-                <span className="hidden sm:inline">Refresh</span>
-              </Button>
-              <Button 
                 variant="primary" 
                 onClick={() => router.push('/programs/new')} 
                 className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 font-semibold hover:scale-105"
@@ -240,7 +232,7 @@ function ProgramsPageContent() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+      <div className="max-w-full mx-auto px-2 sm:px-6 lg:px-4 space-y-3">
         {/* Filters Bar */}
         <ProgramFilters filters={filters} onFilterChange={handleFilterChange} onRefresh={handleRefresh} />
 
@@ -304,7 +296,7 @@ function ProgramsPageContent() {
                 
                 {/* Table view on desktop */}
                 <div className="hidden md:block">
-                  <div className="rounded-2xl border border-gray-200 bg-white shadow-lg overflow-hidden">
+                  <div className="rounded-2xl overflow-hidden">
                     <DataTable
                       key={`programs-${filters.limit}`}
                       columns={columns}

@@ -17,7 +17,7 @@ function SchoolsPageContent() {
   const [schools, setSchools] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, total_pages: 1 });
   const [filters, setFilters] = useState({ search: '', location: '', status: 'all', sort_by: 'name', sort_order: 'asc' });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [deleteTarget, setDeleteTarget] = useState(null);
 

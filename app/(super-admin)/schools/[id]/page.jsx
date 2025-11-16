@@ -42,45 +42,56 @@ export default function SchoolDetailPage() {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-6">
-        <div className="h-16 rounded-lg bg-gray-100 animate-pulse" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-20 rounded-lg bg-gray-100 animate-pulse" />)}
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+        <div className="max-w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+          <div className="h-14 sm:h-16 rounded-lg bg-gray-100 animate-pulse" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-20 rounded-lg bg-gray-100 animate-pulse" />
+            ))}
+          </div>
+          <div className="h-40 rounded-lg bg-gray-100 animate-pulse" />
         </div>
-        <div className="h-40 rounded-lg bg-gray-100 animate-pulse" />
       </div>
     );
   }
 
   if (error) {
-    return <div className="p-6"><div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div></div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+        <div className="max-w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <SchoolHeader school={school} onEdit={onEdit} onDelete={onDelete} onBack={() => router.push('/schools')} />
+      <main className="max-w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
+        <SchoolContact school={school} />
 
-      <SchoolContact school={school} />
+        {(() => {
+          const stats = school ? {
+            total_students: school.students_count,
+            total_teachers: school.teachers_count,
+            total_programs: school.programs_count,
+            active_enrollments: school.evaluations_completed,
+          } : null;
+          return <SchoolStats statistics={stats} />;
+        })()}
 
-      {(() => {
-        const stats = school ? {
-          total_students: school.students_count,
-          total_teachers: school.teachers_count,
-          total_programs: school.programs_count,
-          active_enrollments: school.evaluations_completed,
-        } : null;
-        return <SchoolStats statistics={stats} />;
-      })()}
+        <SchoolAdmin admin={school?.admin} />
 
-      <SchoolAdmin admin={school?.admin} />
+        {/* Programs list not in payload; component renders nothing when absent */}
+        <SchoolPrograms programs={school?.programs} />
 
-      {/* Programs list not in payload; component renders nothing when absent */}
-      <SchoolPrograms programs={school?.programs} />
+        {/* Activity feed not in payload; component renders nothing when absent */}
+        <ActivityFeed items={school?.recent_activity} />
 
-      {/* Activity feed not in payload; component renders nothing when absent */}
-      <ActivityFeed items={school?.recent_activity} />
-
-      <DeleteSchoolModal school={deleteTarget} isOpen={!!deleteTarget} onCancel={() => setDeleteTarget(null)} onConfirm={confirmDelete} />
+        <DeleteSchoolModal school={deleteTarget} isOpen={!!deleteTarget} onCancel={() => setDeleteTarget(null)} onConfirm={confirmDelete} />
+      </main>
     </div>
   );
 }

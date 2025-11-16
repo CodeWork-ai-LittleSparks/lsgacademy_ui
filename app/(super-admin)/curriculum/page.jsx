@@ -274,11 +274,6 @@ export default function CurriculumProgramsPage() {
                       </Button>
                     </div>
                   </div>
-
-                  {/* Chevron Indicator */}
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <ChevronRight className="w-6 h-6 text-purple-600 animate-pulse" strokeWidth={2.5} />
-                  </div>
                 </Card>
               );
             })}

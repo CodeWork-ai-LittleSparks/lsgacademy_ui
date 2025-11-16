@@ -24,12 +24,13 @@ export default function Header() {
     setLoggingOut(true);
     try {
       await logout();
-      // Redirect handled by auth context
+      // Modal can close once logout succeeds; navigation will occur
+      setLogoutOpen(false);
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
       setLoggingOut(false);
-      setLogoutOpen(false);
+      // Keep modal open if logout failed
     }
   };
 
@@ -49,14 +50,14 @@ export default function Header() {
 
   // Get user initials for avatar
   const getUserInitials = (email) => {
-    if (!email) return "G";
+    if (!email) return "";
     const name = email.split("@")[0];
     return name.charAt(0).toUpperCase();
   };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur-sm shadow-sm">
-      <div className="mx-auto max-w-7xl h-16 px-4 sm:px-6">
+      <div className="mx-auto max-w-full h-16 px-4 sm:px-6">
         <div className="flex h-full items-center justify-between">
           {/* Left: Brand */}
           <div className="flex items-center gap-3">
@@ -112,7 +113,7 @@ export default function Header() {
                   {getUserInitials(user?.full_name || user?.email)}
                 </div>
                 <span className="hidden sm:inline font-medium truncate max-w-[160px]">
-                  {user?.full_name || user?.email?.split("@")[0] || "Guest"}
+                  {user?.full_name || user?.email?.split("@")[0] || ""}
                 </span>
                 <ChevronDown className={`h-4 w-4 transition-transform ${menuOpen ? "rotate-180" : ""}`} />
               </button>
@@ -127,9 +128,9 @@ export default function Header() {
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-gray-900 truncate">
-                          {user?.full_name || user?.email?.split("@")[0] || "Guest"}
+                          {user?.full_name || user?.email?.split("@")[0] || ""}
                         </p>
-                        <p className="text-xs text-gray-500 truncate">{user?.email || "guest@example.com"}</p>
+                        <p className="text-xs text-gray-500 truncate">{user?.email || ""}</p>
                       </div>
                     </div>
 
@@ -163,13 +164,13 @@ export default function Header() {
       </div>
 
       {/* Logout Confirmation Modal */}
-      <Modal isOpen={logoutOpen} onClose={() => setLogoutOpen(false)} title="Confirm Logout" size="content">
+      <Modal isOpen={logoutOpen} onClose={loggingOut ? undefined : () => setLogoutOpen(false)} title="Confirm Logout" size="content">
         <div className="space-y-4">
           <p className="text-sm text-gray-700">
             Are you sure you want to log out of your account?
           </p>
           <div className="flex items-center justify-end gap-2">
-            <Button variant="secondary" onClick={() => setLogoutOpen(false)}>Cancel</Button>
+            <Button variant="secondary" onClick={() => setLogoutOpen(false)} disabled={loggingOut}>Cancel</Button>
             <Button variant="danger" onClick={confirmLogout} disabled={loggingOut}>
               {loggingOut ? "Logging out..." : "Log Out"}
             </Button>

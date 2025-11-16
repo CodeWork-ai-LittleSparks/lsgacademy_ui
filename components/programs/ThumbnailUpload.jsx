@@ -44,7 +44,7 @@ export default function ThumbnailUpload({ value, onChange, onError, existingUrl 
   };
 
   return (
-    <div>
+    <div className="max-w-xl mx-auto">
       {!preview ? (
         <div
           className={`group relative rounded-2xl border-2 border-dashed transition-all duration-300 ${
@@ -128,12 +128,12 @@ export default function ThumbnailUpload({ value, onChange, onError, existingUrl 
       ) : (
         <div className="relative space-y-4">
           {/* Preview Container */}
-          <div className="group/preview relative overflow-hidden rounded-2xl border-2 border-gray-200 bg-white shadow-lg">
+          <div className="group/preview relative w-full overflow-hidden rounded-2xl border-2 border-gray-200 bg-white shadow-lg aspect-video">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
               src={preview} 
               alt="Thumbnail preview" 
-              className="w-full aspect-video object-cover group-hover/preview:scale-105 transition-transform duration-500" 
+              className="absolute inset-0 w-full h-full object-cover group-hover/preview:scale-105 transition-transform duration-500" 
             />
             
             {/* Success Badge Overlay */}
