@@ -12,6 +12,7 @@ import {
   getSchool,
   updateSchool,
 } from '@/lib/api/services/settingsService';
+import { toPublicAssetUrl } from '@/lib/utils/urlUtils';
 
 function Tabs({ active, onChange, items }) {
   return (
@@ -284,7 +285,7 @@ export default function SchoolSettingsPage() {
                   {previewUrl ? (
                     <img src={previewUrl} alt="Profile preview" className="w-full h-full object-cover" />
                   ) : (
-                    <img src={profile?.user?.profile_picture_url || '/avatar-placeholder.png'} alt="Profile" className="w-full h-full object-cover" />
+                    <img src={toPublicAssetUrl(profile?.user?.profile_picture_url || '/avatar-placeholder.png')} alt="Profile" className="w-full h-full object-cover" />
                   )}
                 </div>
                 <div className="flex gap-2">

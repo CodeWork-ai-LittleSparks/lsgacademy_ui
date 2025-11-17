@@ -1,10 +1,13 @@
 "use client";
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Plus, RefreshCw, BookOpen, Sparkles } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import DeleteProgramModal from '@/components/programs/DeleteProgramModal';
 import DataTable from '@/components/common/DataTable';
-import { getPrograms, deleteProgram, getCategories } from '@/lib/api/services/programService';
+import ProgramFilters from '@/components/programs/ProgramFilters';
+import ProgramCard from '@/components/programs/ProgramCard';
+import { getPrograms, deleteProgram } from '@/lib/api/services/programService';
 
 function ProgramsPageContent() {
   const router = useRouter();
@@ -15,16 +18,13 @@ function ProgramsPageContent() {
     limit: Number(searchParams.get('limit') || 10),
     search: searchParams.get('search') || '',
     category_id: searchParams.get('category_id') || '',
-    is_active: searchParams.get('is_active') || 'all',
+    status: searchParams.get('status') || 'all',
   }));
   const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
-  const [categories, setCategories] = useState([]);
-  const [loadingCategories, setLoadingCategories] = useState(false);
-  const [localSearch, setLocalSearch] = useState(() => filters.search || '');
 
   const updateURL = (nextFilters) => {
     const params = new URLSearchParams();
@@ -32,71 +32,56 @@ function ProgramsPageContent() {
     params.set('limit', String(nextFilters.limit || 10));
     if (nextFilters.search) params.set('search', nextFilters.search);
     if (nextFilters.category_id) params.set('category_id', nextFilters.category_id);
-    if (nextFilters.is_active && nextFilters.is_active !== 'all') params.set('is_active', nextFilters.is_active);
+    if (nextFilters.status && nextFilters.status !== 'all') params.set('status', nextFilters.status);
     router.replace(`/programs?${params.toString()}`);
   };
 
-  useEffect(() => {
-    let isMounted = true;
+  const loadPrograms = async () => {
     setLoading(true);
     setError(null);
-    getPrograms(filters)
-      .then((res) => {
-        if (!isMounted) return;
-        if (res.success) {
-          const { programs: list = [] } = res.data || {};
-          setPrograms(Array.isArray(list) ? list : []);
-        } else {
-          setError(res.error || 'Failed to load programs');
-        }
-      })
-      .catch((e) => setError(e.message))
-      .finally(() => isMounted && setLoading(false));
-    return () => { isMounted = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.page, filters.limit, filters.search, filters.category_id, filters.is_active]);
+    try {
+      const res = await getPrograms(filters);
+      if (res.success) {
+        const { programs: list = [] } = res.data || {};
+        setPrograms(Array.isArray(list) ? list : []);
+      } else {
+        setError(res.error || 'Failed to load programs');
+      }
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Load categories for filter dropdown
   useEffect(() => {
-    let active = true;
-    setLoadingCategories(true);
-    getCategories({ noCache: false })
-      .then((res) => {
-        if (!active) return;
-        if (res.success) {
-          const list = Array.isArray(res.data) ? res.data : (res.data?.categories || []);
-          setCategories(list);
-        }
-      })
-      .finally(() => active && setLoadingCategories(false));
-    return () => { active = false; };
-  }, []);
-
-  // Debounce server-side search param updates
-  useEffect(() => {
-    const t = setTimeout(() => {
-      handleFilterChange({ search: localSearch || '' });
-    }, 300);
-    return () => clearTimeout(t);
+    loadPrograms();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localSearch]);
+  }, [filters.page, filters.limit, filters.search, filters.category_id, filters.status]);
 
   const handleFilterChange = (next) => {
     setFilters((f) => ({ ...f, ...next, page: 1 }));
     updateURL({ ...filters, ...next, page: 1 });
   };
 
+  const handleRefresh = () => {
+    loadPrograms();
+  };
+
   const getId = (program) => program?.program_id || program?.id;
+  
   const handleView = (program) => {
     const id = getId(program);
     if (!id) return;
     router.push(`/programs/${id}`);
   };
+  
   const handleEdit = (program) => {
     const id = getId(program);
     if (!id) return;
     router.push(`/programs/${id}/edit`);
   };
+  
   const handleDelete = (program) => setDeleteTarget(program);
 
   const confirmDelete = async () => {
@@ -106,11 +91,7 @@ function ProgramsPageContent() {
       const res = await deleteProgram(getId(deleteTarget));
       if (res.success) {
         setDeleteTarget(null);
-        // Refresh list
-        getPrograms(filters).then((r) => {
-          const { programs: list = [] } = r.data || {};
-          setPrograms(Array.isArray(list) ? list : []);
-        });
+        loadPrograms();
       } else {
         setError(res.error || 'Failed to delete program');
       }
@@ -120,125 +101,246 @@ function ProgramsPageContent() {
   };
 
   const columns = useMemo(() => ([
-    { id: 'name', header: 'Name', type: 'text', sortable: true, accessorKey: 'name' },
-    { id: 'category', header: 'Category', type: 'text', sortable: true, accessorFn: (row) => row?.category?.name || '' },
-    { id: 'levels', header: 'Levels', type: 'number', sortable: true, accessorKey: 'total_levels', align: 'center' },
-    { id: 'age', header: 'Age Range', type: 'text', sortable: false, accessorFn: (row) => `${row.age_from}-${row.age_to}` },
-    { id: 'schools', header: 'Schools', type: 'number', sortable: true, accessorKey: 'enrolled_schools', align: 'center' },
-    { id: 'students', header: 'Students', type: 'number', sortable: true, accessorKey: 'total_students', align: 'center' },
-    { id: 'status', header: 'Status', type: 'text', sortable: true, accessorFn: (row) => (row.is_active ? 'Active' : 'Inactive'), align: 'center' },
-    { id: 'actions', header: 'Actions', type: 'actions', cell: (v, row) => (
-      <div className="flex items-center gap-2 justify-end" onClick={(e) => e.stopPropagation()}>
-        <Button variant="outline" size="sm" onClick={() => handleView(row)}>View</Button>
-        <Button variant="primary" size="sm" onClick={() => handleEdit(row)}>Edit</Button>
-        <Button variant="danger" size="sm" onClick={() => handleDelete(row)}>Delete</Button>
-      </div>
-    ), align: 'right' },
+    { 
+      id: 'name', 
+      header: 'Program Name', 
+      type: 'text', 
+      sortable: true, 
+      accessorKey: 'name',
+      cell: (v) => (<span className="font-semibold text-gray-900">{v}</span>)
+    },
+    { 
+      id: 'category', 
+      header: 'Category', 
+      type: 'text', 
+      sortable: true, 
+      accessorFn: (row) => row?.category?.name || '-',
+      cell: (v) => (
+        <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200 shadow-sm">
+          {v}
+        </span>
+      )
+    },
+    { 
+      id: 'levels', 
+      header: 'Levels', 
+      type: 'number', 
+      sortable: true, 
+      accessorKey: 'total_levels', 
+      align: 'center',
+      cell: (v) => (
+        <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-100 text-blue-700 shadow-sm">
+          {v || 0}
+        </span>
+      )
+    },
+    { 
+      id: 'age', 
+      header: 'Age Range', 
+      type: 'text', 
+      sortable: false, 
+      accessorFn: (row) => `${row.age_from || 0}-${row.age_to || 0}`,
+      cell: (v) => (
+        <span className="text-sm font-medium text-gray-700">{v} years</span>
+      )
+    },
+    { 
+      id: 'schools', 
+      header: 'Schools', 
+      type: 'number', 
+      sortable: true, 
+      accessorKey: 'enrolled_schools', 
+      align: 'center',
+      cell: (v) => (
+        <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-teal-100 text-teal-700 shadow-sm">
+          {v?.toLocaleString() || 0}
+        </span>
+      )
+    },
+    { 
+      id: 'students', 
+      header: 'Students', 
+      type: 'number', 
+      sortable: true, 
+      accessorKey: 'total_students', 
+      align: 'center',
+      cell: (v) => (
+        <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-100 text-indigo-700 shadow-sm">
+          {v?.toLocaleString() || 0}
+        </span>
+      )
+    },
+    { 
+      id: 'status', 
+      header: 'Status', 
+      type: 'text', 
+      sortable: true, 
+      accessorFn: (row) => (row.is_active ? 'Active' : 'Inactive'), 
+      align: 'center',
+      cell: (v, row) => (
+        <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold border-2 shadow-sm ${
+          row.is_active 
+            ? 'bg-green-100 text-green-700 border-green-200' 
+            : 'bg-red-100 text-red-700 border-red-200'
+        }`}>
+          {v}
+        </span>
+      )
+    },
   ]), []);
 
-  const tableContent = (
-    <DataTable
-      key={`programs-${filters.limit}`}
-      columns={columns}
-      data={programs}
-      loading={loading}
-      emptyMessage={loading ? 'Loading...' : 'No programs found'}
-      enableGlobalSearch={false}
-      onRowClick={(row) => handleView(row)}
-      toolbarActions={[{ label: '+ Add Program', variant: 'primary', onClick: () => router.push('/programs/new') }]}
-      initialPageSize={Number(filters.limit) || 10}
-      onPageSizeChange={(size) => handleFilterChange({ limit: Number(size) || 10 })}
-    />
-  );
+  const rowActions = (row) => [
+    { id: 'view', label: 'View', variant: 'ghost', onClick: () => handleView(row) },
+    { id: 'edit', label: 'Edit', variant: 'outline', onClick: () => handleEdit(row) },
+    { id: 'delete', label: 'Delete', variant: 'danger', onClick: () => handleDelete(row) },
+  ];
 
   return (
-    <div className="p-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-gray-900">Programs Management</h1>
-      </div>
+    <div className="min-h-full bg-gradient-to-br from-gray-50 via-purple-50/20 to-blue-50/20">
+      {/* Modern Header with Gradient Background */}
+      <div className="sticky top-0 z-10">
+        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            {/* Left Section - Title */}
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl shadow-lg">
+                <BookOpen className="w-6 h-6 sm:w-7 sm:h-7 text-white" strokeWidth={2.5} />
+              </div>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+                  Programs Management
+                </h1>
+                <p className="text-sm text-gray-600 font-medium mt-1">
+                  Manage educational programs and curriculum
+                </p>
+              </div>
+            </div>
 
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm p-5 sm:p-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-          {/* Search by program name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
-            <input
-              type="text"
-              value={localSearch}
-              onChange={(e) => setLocalSearch(e.target.value)}
-              placeholder="Search program name"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
+            {/* Right Section - Action Buttons */}
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <Button 
+                variant="primary" 
+                onClick={() => router.push('/programs/new')} 
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 font-semibold hover:scale-105"
+              >
+                <Plus className="h-5 w-5" strokeWidth={2.5} />
+                <span>Add Program</span>
+              </Button>
+            </div>
           </div>
-
-          {/* Category filter */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-            <select
-              value={filters.category_id || ''}
-              onChange={(e) => handleFilterChange({ category_id: e.target.value })}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">All categories</option>
-              {loadingCategories ? (
-                <option value="" disabled>Loading...</option>
-              ) : (
-                categories.map((c) => (
-                  <option key={c?.id ?? c?.category_id ?? String(c)} value={String(c?.id ?? c?.category_id ?? c)}>
-                    {c?.name ?? c?.title ?? String(c?.id ?? c)}
-                  </option>
-                ))
-              )}
-            </select>
-          </div>
-
-          {/* Status filter */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select
-              value={filters.is_active || 'all'}
-              onChange={(e) => handleFilterChange({ is_active: e.target.value })}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="all">All</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-
-          {/* Items per page control removed; controlled below the table */}
-        </div>
-
-        <div className="mt-4 flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => {
-              setLocalSearch('');
-              handleFilterChange({ search: '', category_id: '', is_active: 'all', limit: 10 });
-            }}
-          >
-            Reset Filters
-          </Button>
         </div>
       </div>
 
-      {error ? (
-        <div className="rounded border border-red-200 bg-red-50 text-red-700 p-3">{error}</div>
-      ) : null}
+      {/* Main Content */}
+      <div className="max-w-full mx-auto px-2 sm:px-6 lg:px-4 space-y-3">
+        {/* Filters Bar */}
+        <ProgramFilters filters={filters} onFilterChange={handleFilterChange} onRefresh={handleRefresh} />
 
-      {tableContent}
+        {/* Error Message */}
+        {error ? (
+          <div className="rounded-2xl border-2 border-red-200 bg-gradient-to-r from-red-50 to-pink-50 p-4 sm:p-5 shadow-md">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-1 h-full bg-red-500 rounded-full" />
+              <p className="text-sm sm:text-base text-red-700 font-semibold">{error}</p>
+            </div>
+          </div>
+        ) : null}
 
-      {/* Pagination handled within DataTable */}
+        {/* Loading State */}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div 
+                key={i} 
+                className="h-56 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-50 animate-pulse shadow-sm border border-gray-200"
+              />
+            ))}
+          </div>
+        ) : (
+          <>
+            {/* Empty State */}
+            {programs.length === 0 && !loading ? (
+              <div className="flex flex-col items-center justify-center py-16 sm:py-20 px-4 rounded-2xl border-2 border-dashed border-gray-300 bg-gradient-to-br from-white to-gray-50">
+                <div className="p-5 bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl mb-4 shadow-inner">
+                  <BookOpen className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400" strokeWidth={1.5} />
+                </div>
+                <p className="text-lg sm:text-xl font-bold text-gray-600 mb-2">No programs found</p>
+                <p className="text-sm sm:text-base text-gray-500 text-center max-w-md mb-6">
+                  {filters.search || filters.category_id || filters.status !== 'all' 
+                    ? 'Try adjusting your filters to find what you\'re looking for'
+                    : 'Get started by creating your first program'}
+                </p>
+                <Button 
+                  variant="primary" 
+                  onClick={() => router.push('/programs/new')}
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 font-semibold hover:scale-105"
+                >
+                  <Plus className="w-5 h-5" strokeWidth={2.5} />
+                  Create Your First Program
+                </Button>
+              </div>
+            ) : (
+              <>
+                {/* Card view on mobile/tablet */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:hidden">
+                  {programs.map((p) => (
+                    <ProgramCard 
+                      key={p?.id ?? p?.program_id} 
+                      program={p} 
+                      onView={handleView} 
+                      onEdit={handleEdit} 
+                      onDelete={handleDelete} 
+                    />
+                  ))}
+                </div>
+                
+                {/* Table view on desktop */}
+                <div className="hidden md:block">
+                  <div className="rounded-2xl overflow-hidden">
+                    <DataTable
+                      key={`programs-${filters.limit}`}
+                      columns={columns}
+                      data={programs}
+                      loading={loading}
+                      emptyMessage="No programs found"
+                      enableGlobalSearch={false}
+                      onRefresh={handleRefresh}
+                      rowActions={rowActions}
+                      initialPageSize={Number(filters.limit) || 10}
+                      onPageSizeChange={(size) => handleFilterChange({ limit: Number(size) || 10 })}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+          </>
+        )}
+      </div>
 
-      <DeleteProgramModal program={deleteTarget} isOpen={!!deleteTarget} onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />
+      {/* Delete Modal */}
+      <DeleteProgramModal 
+        program={deleteTarget} 
+        isOpen={!!deleteTarget} 
+        onConfirm={confirmDelete} 
+        onCancel={() => setDeleteTarget(null)} 
+        loading={deleting} 
+      />
     </div>
   );
 }
 
 export default function ProgramsPage() {
   return (
-    <Suspense fallback={<div className="p-4">Loading programs...</div>}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/20 to-blue-50/20 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="inline-block p-5 bg-gradient-to-br from-purple-100 to-blue-100 rounded-2xl shadow-lg animate-pulse">
+            <BookOpen className="h-12 w-12 text-purple-600" strokeWidth={2.5} />
+          </div>
+          <p className="text-lg font-semibold text-gray-700">Loading programs...</p>
+        </div>
+      </div>
+    }>
       <ProgramsPageContent />
     </Suspense>
   );

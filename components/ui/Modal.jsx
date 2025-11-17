@@ -1,17 +1,22 @@
 "use client";
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 export default function Modal({ isOpen = true, onClose, title, children, size = 'lg' }) {
-  if (isOpen === false) return null;
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
     function handleKey(e) {
       if (e.key === 'Escape') onClose?.();
     }
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  }, [onClose]);
+  }, [isOpen, onClose]);
 
   // Lock body scroll when modal is open to prevent background scrollbar
   useEffect(() => {
@@ -30,6 +35,8 @@ export default function Modal({ isOpen = true, onClose, title, children, size = 
     xl: 'w-full max-w-6xl',
     content: 'w-auto max-w-[90vw]',
   };
+
+  if (!mounted || !isOpen) return null;
 
   const modalContent = (
     <div
@@ -67,5 +74,5 @@ export default function Modal({ isOpen = true, onClose, title, children, size = 
     </div>
   );
 
-  return createPortal(modalContent, typeof document !== 'undefined' ? document.body : (typeof window !== 'undefined' && window.document ? window.document.body : null));
+  return createPortal(modalContent, document.body);
 }

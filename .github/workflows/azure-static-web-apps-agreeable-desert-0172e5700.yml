@@ -46,6 +46,7 @@
 
 name: Azure Static Web Apps CI/CD
 
+
 on:
   push:
     branches:
@@ -62,39 +63,22 @@ jobs:
     name: Build and Deploy Job
 
     steps:
-      # Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           submodules: false
           lfs: false
 
-      # Setup Node.js with caching
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      # Install dependencies
-      - name: Install dependencies
-        run: npm ci
-
-      # Build and export the Next.js app
-      - name: Build and Export Next.js app
-        run: |
-          npm run build
-
-      # Deploy exported static site to Azure
-      - name: Deploy to Azure Static Web Apps
+      # Use the Azure Static Web Apps action to build and deploy Next.js (SSR)
+      - name: Build and Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AGREEABLE_DESERT_0172E5700 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "/"
-          output_location: ""  # exported Next.js build folder
-          skip_app_build: true
+          output_location: ".next"
+          skip_app_build: false
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

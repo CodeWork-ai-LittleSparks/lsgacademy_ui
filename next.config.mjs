@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 import path from 'path';
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+// const apiUrl = 'https://api.dev.lsgacademy.in';
 
 let remotePatterns = [];
 if (apiUrl) {
@@ -23,6 +24,8 @@ if (apiUrl) {
 }
 
 const nextConfig = {
+  // Use standalone output so Azure SWA can boot the server faster and more reliably
+  output: 'standalone',
   images: {
     remotePatterns,
   },
