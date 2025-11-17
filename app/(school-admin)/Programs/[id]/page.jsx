@@ -82,7 +82,7 @@ export default function SchoolProgramDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={toPublicAssetUrl(program.thumbnail_url || "")} alt={`${program.name} thumbnail`} className="w-full aspect-video object-cover rounded-lg border" />
+          <img src={toPublicAssetUrl(program.thumbnail_url || "")} alt={`${program.name} thumbnail`} className="block w-full max-w-xl aspect-video object-cover rounded-lg border mx-auto" />
         </div>
         <div className="space-y-2">
           <h1 className="text-2xl font-semibold text-gray-900 flex items-center gap-2">

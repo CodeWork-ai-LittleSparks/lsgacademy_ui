@@ -248,17 +248,6 @@ export default function DataTable({
                 <span className="hidden sm:inline">Export</span>
               </Button>
             )}
-            
-            {onRefresh && (
-              <Button 
-                variant="ghost" 
-                onClick={onRefresh} 
-                className="flex items-center gap-2 px-4 py-3 rounded-xl hover:bg-blue-50 font-semibold transition-all duration-200"
-              >
-                <RefreshCw className="h-4 w-4 text-blue-600" strokeWidth={2.5} /> 
-                <span className="hidden sm:inline">Refresh</span>
-              </Button>
-            )}
           </div>
           
           {/* Right Section */}
