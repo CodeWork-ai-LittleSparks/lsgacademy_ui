@@ -3,7 +3,9 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { GraduationCap, LayoutGrid, Building2, BookOpen, Settings, Users, Calendar, ChevronRight, Menu, BarChart3, ClipboardList, ChevronLeft, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { GraduationCap, LayoutGrid, Building2, BookOpen, Settings, Users, Calendar, ChevronRight, Menu, BarChart3, ClipboardList, ChevronLeft, PanelLeftClose, PanelLeftOpen, MessageSquare, Megaphone } from "lucide-react";
+import { useConversations } from "@/lib/hooks/useConversations";
+import { useAnnouncements } from "@/lib/hooks/useAnnouncements";
 import { useSidebar } from "@/context/SidebarContext";
 
 const superAdminMenu = [
@@ -31,6 +33,26 @@ export default function Sidebar({ role = "super-admin" }) {
   const { minimized, setMinimized } = useSidebar();
 
   const items = role === "school-admin" ? schoolAdminMenu : superAdminMenu;
+  const { data: conversationsData } = useConversations({ page: 1, limit: 1 });
+  const unreadCount = conversationsData?.summary?.total_unread || conversationsData?.total_unread || 0;
+  const { data: annData } = useAnnouncements({ mode: "received", page: 1, limit: 1, unread_only: true });
+  const unreadAnnCount = role === "school-admin"
+    ? (annData?.summary?.unread_count || (Array.isArray(annData?.items) ? annData.items.length : 0))
+    : 0;
+
+  const messagesHref = role === "school-admin" ? "/school-messages" : "/messages";
+  const announcementsHref = role === "school-admin" ? "/school-announcements" : "/announcements";
+  const messagesItem = { label: "Messages", href: messagesHref, icon: MessageSquare };
+  const announcementsItem = { label: "Announcements", href: announcementsHref, icon: Megaphone };
+
+  let withNav = items;
+  if (role === "super-admin") {
+    const idx = items.findIndex((i) => i.label === "Curriculum" || i.href === "/curriculum");
+    withNav = idx >= 0 ? [...items.slice(0, idx + 1), messagesItem, announcementsItem, ...items.slice(idx + 1)] : [messagesItem, announcementsItem, ...items];
+  } else {
+    const idx = items.findIndex((i) => i.label === "Programs" || i.href === "/Programs" || i.href === "/programs");
+    withNav = idx >= 0 ? [...items.slice(0, idx + 1), messagesItem, announcementsItem, ...items.slice(idx + 1)] : [messagesItem, announcementsItem, ...items];
+  }
 
   return (
     <>
@@ -83,8 +105,10 @@ export default function Sidebar({ role = "super-admin" }) {
 
         {/* Navigation */}
         <nav className="mt-20 px-4 space-y-2">
-          {items.map(({ label, href, icon: Icon }) => {
-            const active = pathname === href || pathname.startsWith(href + "/");
+          {withNav.map(({ label, href, icon: Icon }) => {
+            const isAnnouncementsPath = pathname === announcementsHref || pathname.startsWith(announcementsHref + "/");
+            const isMessagesPath = pathname === messagesHref || (pathname.startsWith(messagesHref + "/") && !isAnnouncementsPath);
+            const active = label === "Messages" ? isMessagesPath : (label === "Announcements" ? isAnnouncementsPath : (pathname === href || pathname.startsWith(href + "/")));
             return (
               <Link key={href} href={href} className="block group">
                 <div
@@ -130,6 +154,16 @@ export default function Sidebar({ role = "super-admin" }) {
                           {label}
                         </span>
                       </div>
+                      {label === 'Messages' && unreadCount > 0 && (
+                        <span className="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                          {unreadCount}
+                        </span>
+                      )}
+                      {label === 'Announcements' && unreadAnnCount > 0 && (
+                        <span className="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                          {unreadAnnCount}
+                        </span>
+                      )}
                       <ChevronRight 
                         className={`
                           h-4 w-4 transition-all duration-200 transform
