@@ -6,16 +6,16 @@ import Card from "@/components/ui/Card";
 import ProgramStats from "@/components/programs/ProgramStats";
 import { getProgramById } from "@/lib/api/services/programService";
 import { toPublicAssetUrl } from "@/lib/utils/urlUtils";
-
+ 
 export default function SchoolProgramDetailPage() {
   const router = useRouter();
   const params = useParams();
   const programId = params?.id;
-
+ 
   const [program, setProgram] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+ 
   useEffect(() => {
     let mounted = true;
     setLoading(true);
@@ -30,7 +30,7 @@ export default function SchoolProgramDetailPage() {
       .finally(() => mounted && setLoading(false));
     return () => { mounted = false; };
   }, [programId]);
-
+ 
   if (loading) {
     return (
       <div className="p-4 space-y-4">
@@ -46,7 +46,7 @@ export default function SchoolProgramDetailPage() {
       </div>
     );
   }
-
+ 
   if (error) {
     return (
       <div className="p-4 space-y-3">
@@ -55,7 +55,7 @@ export default function SchoolProgramDetailPage() {
       </div>
     );
   }
-
+ 
   if (!program) {
     return (
       <div className="p-4 space-y-3">
@@ -64,12 +64,12 @@ export default function SchoolProgramDetailPage() {
       </div>
     );
   }
-
+ 
   const categoryName = program?.category?.name || "";
   const categoryColor = program?.category?.color || "#e5e7eb";
   const createdAt = program?.created_at ? new Date(program.created_at) : null;
   const updatedAt = program?.updated_at ? new Date(program.updated_at) : null;
-
+ 
   return (
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
@@ -78,7 +78,7 @@ export default function SchoolProgramDetailPage() {
           <Button variant="primary" onClick={() => router.push(`/Programs/${program.id}/enroll`)}>Enroll Students</Button>
         </div>
       </div>
-
+ 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -103,13 +103,13 @@ export default function SchoolProgramDetailPage() {
           ) : null}
         </div>
       </div>
-
+ 
       {/* Description */}
       <Card className="p-4 space-y-2">
         <h2 className="text-lg font-semibold text-gray-900">Description</h2>
         <p className="text-gray-700 whitespace-pre-line">{program.description}</p>
       </Card>
-
+ 
       {/* Statistics */}
       <div>
         <h2 className="text-lg font-semibold text-gray-900 mb-2">Program Statistics</h2>
@@ -119,7 +119,7 @@ export default function SchoolProgramDetailPage() {
           total_evaluations: program.total_evaluations,
         }} />
       </div>
-
+ 
       {/* Details List */}
       <Card className="p-4">
         <h2 className="text-lg font-semibold text-gray-900 mb-2">Program Details</h2>
@@ -136,3 +136,4 @@ export default function SchoolProgramDetailPage() {
     </div>
   );
 }
+ 
