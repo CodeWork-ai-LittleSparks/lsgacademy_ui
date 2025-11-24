@@ -108,7 +108,7 @@ export default function ComposeModal({ isOpen, onClose }) {
     const hasError = touched[name] && errors[name];
     const baseClasses = 'w-full pl-11 pr-4 py-2.5 border-2 rounded-xl focus:ring-4 bg-white text-sm font-medium text-gray-900 placeholder:text-gray-400 transition-all duration-200 outline-none';
     const errorClasses = 'border-red-300 focus:ring-red-100 focus:border-red-500';
-    const normalClasses = 'border-gray-200 hover:border-purple-300 focus:ring-purple-100 focus:border-purple-500';
+    const normalClasses = 'border-gray-200 hover:border-amber-300 focus:ring-amber-100 focus:border-orange-500';
     return `${baseClasses} ${hasError ? errorClasses : normalClasses}`;
   };
 
@@ -117,8 +117,8 @@ export default function ComposeModal({ isOpen, onClose }) {
       <div className="space-y-6 px-2">
         {/* Form Section Header */}
         <div className="flex items-center gap-3 pb-4 border-b-2 border-gray-100">
-          <div className="p-2.5 bg-gradient-to-br from-purple-100 to-blue-100 rounded-xl shadow-sm">
-            <MessageSquare className="w-5 h-5 text-purple-600" strokeWidth={2.5} />
+          <div className="p-2.5 bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl shadow-sm">
+            <MessageSquare className="w-5 h-5 text-orange-600" strokeWidth={2.5} />
           </div>
           <div>
             <h3 className="text-base font-bold text-gray-900 tracking-tight">Compose Message</h3>
@@ -133,8 +133,8 @@ export default function ComposeModal({ isOpen, onClose }) {
             <span className="text-red-500">*</span>
           </label>
           <div className="relative">
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 bg-purple-100 rounded-lg pointer-events-none">
-              <User className="w-4 h-4 text-purple-600" strokeWidth={2.5} />
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 bg-amber-100 rounded-lg pointer-events-none">
+              <User className="w-4 h-4 text-orange-600" strokeWidth={2.5} />
             </div>
             <input 
               type="text" 
@@ -155,7 +155,7 @@ export default function ComposeModal({ isOpen, onClose }) {
                 <div
                   key={r.id}
                   className={`p-3 cursor-pointer hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 ${
-                    selectedRecipient?.id === r.id ? "bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200" : ""
+                    selectedRecipient?.id === r.id ? "bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200" : ""
                   }`}
                   onClick={() => {
                     setSelectedRecipient(r);
@@ -167,8 +167,8 @@ export default function ComposeModal({ isOpen, onClose }) {
                   }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-bold text-purple-600">
+                    <div className="h-8 w-8 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full flex items-center justify-center">
+                      <span className="text-xs font-bold text-orange-600">
                         {r.full_name?.charAt(0)?.toUpperCase()}
                       </span>
                     </div>
@@ -183,11 +183,11 @@ export default function ComposeModal({ isOpen, onClose }) {
           )}
           
           {selectedRecipient && !search && (
-            <div className="mt-3 p-3 bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 rounded-xl">
+            <div className="mt-3 p-3 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-bold text-purple-600">
+                  <div className="h-8 w-8 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full flex items-center justify-center">
+                    <span className="text-xs font-bold text-orange-600">
                       {selectedRecipient.full_name?.charAt(0)?.toUpperCase()}
                     </span>
                   </div>
@@ -218,8 +218,8 @@ export default function ComposeModal({ isOpen, onClose }) {
             <span className="text-red-500">*</span>
           </label>
           <div className="relative">
-            <div className="absolute left-3 top-3 p-1.5 bg-blue-100 rounded-lg pointer-events-none">
-              <MessageSquare className="w-4 h-4 text-blue-600" strokeWidth={2.5} />
+            <div className="absolute left-3 top-3 p-1.5 bg-amber-100 rounded-lg pointer-events-none">
+              <MessageSquare className="w-4 h-4 text-orange-600" strokeWidth={2.5} />
             </div>
             <textarea 
               value={content} 
@@ -260,7 +260,7 @@ export default function ComposeModal({ isOpen, onClose }) {
           <button 
             onClick={handleSend} 
             disabled={loading || !selectedRecipient}
-            className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             {loading ? (
               <>

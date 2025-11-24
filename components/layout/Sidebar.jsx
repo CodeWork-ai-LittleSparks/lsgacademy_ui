@@ -61,9 +61,9 @@ export default function Sidebar({ role = "super-admin" }) {
         aria-label="Toggle sidebar"
         onClick={() => setOpen((v) => !v)}
         className="fixed top-4 left-4 z-50 inline-flex items-center justify-center rounded-xl bg-white/90 backdrop-blur-sm shadow-lg px-3 py-3 md:hidden transition-all duration-200 hover:scale-105 active:scale-95"
-        style={{ backgroundColor: '#FFF1F1' }}
+        style={{ backgroundColor: '#FFF7ED' }}
       >
-        <Menu className="h-5 w-5" style={{ color: '#5B00D1' }} />
+        <Menu className="h-5 w-5" style={{ color: '#C2410C' }} />
       </button>
 
       <aside
@@ -71,7 +71,7 @@ export default function Sidebar({ role = "super-admin" }) {
           minimized ? 'w-[60px]' : 'w-[210px]'
         }`}
         style={{ 
-          background: 'linear-gradient(180deg, #5B00D1 0%, #5B00D1 100%)',
+          background: 'linear-gradient(180deg, #EA580C 0%, #C2410C 100%)',
         }}
       >
         {/* Header with Logo only */}
@@ -80,13 +80,13 @@ export default function Sidebar({ role = "super-admin" }) {
           <button
             onClick={() => setMinimized(!minimized)}
             className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 items-center justify-center w-6 h-6 rounded-full shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 z-10"
-            style={{ backgroundColor: '#FFF1F1' }}
+            style={{ backgroundColor: '#FFF7ED' }}
             aria-label={minimized ? "Expand sidebar" : "Minimize sidebar"}
           >
             {minimized ? (
-              <PanelLeftOpen className="h-3 w-3" style={{ color: '#5B00D1' }} />
+              <PanelLeftOpen className="h-3 w-3" style={{ color: '#C2410C' }} />
             ) : (
-              <PanelLeftClose className="h-3 w-3" style={{ color: '#5B00D1' }} />
+              <PanelLeftClose className="h-3 w-3" style={{ color: '#C2410C' }} />
             )}
           </button>
 
@@ -131,13 +131,13 @@ export default function Sidebar({ role = "super-admin" }) {
                       ${minimized ? 'w-8 h-8' : 'w-10 h-10'}
                     `}
                     style={{ 
-                      backgroundColor: active ? '#FCE7CF' : 'rgba(255, 255, 255, 0.15)',
+                      backgroundColor: active ? '#FFEDD5' : 'rgba(255, 255, 255, 0.15)',
                     }}
                   >
                     <Icon 
                       className={`${minimized ? 'h-4 w-4' : 'h-5 w-5'} transition-all duration-200`}
                       style={{ 
-                        color: active ? '#5B00D1' : 'white'
+                        color: active ? '#C2410C' : 'white'
                       }} 
                     />
                   </div>
@@ -173,7 +173,7 @@ export default function Sidebar({ role = "super-admin" }) {
                           }
                         `}
                         style={{ 
-                          color: active ? '#5B00D1' : 'white'
+                          color: active ? '#C2410C' : 'white'
                         }}
                       />
                     </>
@@ -192,7 +192,7 @@ export default function Sidebar({ role = "super-admin" }) {
         </nav>
 
         {/* Bottom accent */}
-        <div className="absolute bottom-0 left-0 right-0 h-2" style={{ backgroundColor: '#C7A7FF' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-2" style={{ backgroundColor: '#FBD38D' }} />
       </aside>
 
       {/* Overlay for mobile */}

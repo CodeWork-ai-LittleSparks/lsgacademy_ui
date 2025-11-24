@@ -89,7 +89,7 @@ export default function Header() {
             <button
               aria-label="Go to Dashboard"
               onClick={() => router.push("/")}
-              className="flex items-center gap-2 rounded-xl px-2 py-1 text-gray-800 hover:text-purple-700 transition-colors"
+              className="flex items-center gap-2 rounded-xl px-2 py-1 text-gray-800 hover:text-orange-700 transition-colors"
             >           
             </button>
           </div>
@@ -97,7 +97,7 @@ export default function Header() {
           {/* Right: Search + Actions */}
           <div className="flex items-center gap-4">
             {/* Search */}
-            <div className="hidden md:flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50/70 px-4 py-2 shadow-sm transition-colors focus-within:border-purple-300 focus-within:bg-white">
+            <div className="hidden md:flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50/70 px-4 py-2 shadow-sm transition-colors focus-within:border-orange-300 focus-within:bg-white">
               <Search className="h-4 w-4 text-gray-400" aria-hidden />
               <input
                 value={q}
@@ -154,9 +154,9 @@ export default function Header() {
                           setNotifOpen(false);
                           refetchNotifs();
                         }}
-                        className={cn("flex items-start gap-3 p-3 cursor-pointer", !notification.is_read && "bg-blue-50")}
+                        className={cn("flex items-start gap-3 p-3 cursor-pointer", !notification.is_read && "bg-amber-50")}
                       >
-                        <div className={cn("h-2 w-2 rounded-full mt-2 flex-shrink-0", notification.is_read ? "bg-gray-300" : "bg-blue-500")} />
+                        <div className={cn("h-2 w-2 rounded-full mt-2 flex-shrink-0", notification.is_read ? "bg-gray-300" : "bg-orange-500")} />
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm">{notification.title}</p>
                           <p className="text-xs text-gray-600 line-clamp-2">{notification.message}</p>
@@ -167,7 +167,7 @@ export default function Header() {
                   </div>
                   <div className="px-4 py-2 border-t">
                     <button
-                      className="w-full text-sm text-blue-600 hover:underline"
+                      className="w-full text-sm text-orange-600 hover:underline"
                       onClick={async () => {
                         try { await apiClient.put(`/notifications/mark-all-read`); toast.success("All notifications marked as read"); } catch {}
                         refetchNotifs();
@@ -188,7 +188,7 @@ export default function Header() {
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-sm font-semibold text-white shadow-sm">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-sm font-semibold text-white shadow-sm">
                   {getUserInitials(user?.full_name || user?.email)}
                 </div>
                 <span className="hidden sm:inline font-medium truncate max-w-[160px]">
@@ -202,7 +202,7 @@ export default function Header() {
                   <div className="p-2">
                     {/* User Info */}
                     <div className="flex items-center gap-3 px-3 py-2 border-b border-gray-100">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-sm font-semibold text-white">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-sm font-semibold text-white">
                         {getUserInitials(user?.email)}
                       </div>
                       <div className="min-w-0">

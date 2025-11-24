@@ -1,4 +1,4 @@
-﻿export default function Button({ children, className = "", variant = "secondary", size = "md", disabled = false, ...props }) {
+export default function Button({ children, className = "", variant = "secondary", size = "md", disabled = false, ...props }) {
   const base = "inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200 focus:outline-none focus:ring-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100";
   
   const sizes = {
@@ -8,7 +8,7 @@
   };
   
   const variants = {
-    primary: "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-md hover:shadow-lg hover:scale-105 focus:ring-purple-200",
+    primary: "bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white shadow-md hover:shadow-lg hover:scale-105 focus:ring-amber-200",
     secondary: "bg-gray-100 text-gray-800 hover:bg-gray-200 border-2 border-gray-200 hover:border-gray-300 focus:ring-gray-200",
     outline: "border-2 border-gray-300 bg-white text-gray-800 hover:bg-gray-50 hover:border-gray-400 shadow-sm hover:shadow-md focus:ring-gray-200",
     ghost: "bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-200",

@@ -27,6 +27,10 @@ if (apiUrl) {
   domains.add('localhost');
 }
 
+// Always allow the known production CDN/API host for uploads
+remotePatterns.push({ protocol: 'https', hostname: 'api.dev.lsgacademy.in', pathname: '/uploads/**' });
+domains.add('api.dev.lsgacademy.in');
+
 const nextConfig = {
   // Use standalone output so Azure SWA can boot the server faster and more reliably
   output: 'standalone',

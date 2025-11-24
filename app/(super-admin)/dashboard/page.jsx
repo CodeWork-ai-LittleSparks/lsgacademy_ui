@@ -56,7 +56,7 @@ export default function SuperAdminDashboardPage() {
   }, [loadDashboard]);
 
   if (loading && !dashboardData) return (
-    <div className="p-4 sm:p-6 lg:p-8 min-h-[90vh] grid place-items-center bg-gradient-to-br from-gray-50 via-purple-50/30 to-blue-50/30">
+    <div className="p-4 sm:p-6 lg:p-8 min-h-[90vh] grid place-items-center bg-gradient-to-br from-gray-50 via-amber-50/30 to-orange-50/30">
       <div className="flex flex-col items-center gap-4">
         <Loading />
       </div>
@@ -64,13 +64,13 @@ export default function SuperAdminDashboardPage() {
   );
 
   return (
-    <div className="min-h-full bg-gradient-to-br from-gray-50 via-purple-50/20 to-blue-50/20">
+    <div className="min-h-full bg-gradient-to-br from-gray-50 via-amber-50/20 to-orange-50/20">
       <div className="max-w-[1920px] mx-auto space-y-6 sm:space-y-8 p-4 sm:p-6 lg:p-8">
         {/* Header Section */}
         <div className="flex flex-col gap-4 sm:gap-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl shadow-lg">
+            <div className="p-3 bg-gradient-to-br from-amber-600 to-orange-600 rounded-2xl shadow-lg">
                 <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-white" strokeWidth={2.5} />
               </div>
               <div>
@@ -111,13 +111,13 @@ export default function SuperAdminDashboardPage() {
 
           {/* Date Range Info */}
           {metadata?.date_range && (
-            <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl shadow-sm">
-              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" />
+            <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-orange-200 rounded-xl shadow-sm">
+              <div className="w-1.5 h-1.5 bg-orange-600 rounded-full animate-pulse" />
               <p className="text-sm font-semibold text-gray-700">
                 Showing data from{' '}
-                <span className="font-bold text-blue-700">{metadata.date_range.from}</span>
+                <span className="font-bold text-orange-700">{metadata.date_range.from}</span>
                 {' '}to{' '}
-                <span className="font-bold text-blue-700">{metadata.date_range.to}</span>
+                <span className="font-bold text-orange-700">{metadata.date_range.to}</span>
               </p>
             </div>
           )}
@@ -126,7 +126,7 @@ export default function SuperAdminDashboardPage() {
         {/* Summary Cards */}
         <div>
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2">
-            <div className="w-1 h-6 bg-gradient-to-b from-purple-600 to-blue-600 rounded-full" />
+            <div className="w-1 h-6 bg-gradient-to-b from-amber-600 to-orange-600 rounded-full" />
             Overview Statistics
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-5">
@@ -143,7 +143,7 @@ export default function SuperAdminDashboardPage() {
         {/* Analytics Cards */}
         <div>
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2">
-            <div className="w-1 h-6 bg-gradient-to-b from-purple-600 to-blue-600 rounded-full" />
+            <div className="w-1 h-6 bg-gradient-to-b from-amber-600 to-orange-600 rounded-full" />
             Key Metrics
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
@@ -156,7 +156,7 @@ export default function SuperAdminDashboardPage() {
         {/* Charts */}
         <div>
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2">
-            <div className="w-1 h-6 bg-gradient-to-b from-purple-600 to-blue-600 rounded-full" />
+            <div className="w-1 h-6 bg-gradient-to-b from-amber-600 to-orange-600 rounded-full" />
             Performance Insights
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
@@ -170,7 +170,7 @@ export default function SuperAdminDashboardPage() {
         {/* Tables */}
         <div>
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2">
-            <div className="w-1 h-6 bg-gradient-to-b from-purple-600 to-blue-600 rounded-full" />
+            <div className="w-1 h-6 bg-gradient-to-b from-amber-600 to-orange-600 rounded-full" />
             Top Performers
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">

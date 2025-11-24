@@ -21,9 +21,9 @@ export default function ProgramCard({ program, onView, onEdit, onDelete }) {
   const categoryColor = category?.color || '#e5e7eb';
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border-2 border-gray-200 hover:border-purple-300 bg-white shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+    <div className="group relative overflow-hidden rounded-2xl border-2 border-gray-200 hover:border-amber-300 bg-white shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
       {/* Top Accent Line */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
       
       {/* Thumbnail Section */}
       <button 
@@ -46,7 +46,7 @@ export default function ProgramCard({ program, onView, onEdit, onDelete }) {
             {/* View Badge on Hover */}
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/thumb:opacity-100 transition-opacity duration-300">
               <div className="p-3 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg">
-                <Eye className="w-6 h-6 text-purple-600" strokeWidth={2.5} />
+                <Eye className="w-6 h-6 text-orange-600" strokeWidth={2.5} />
               </div>
             </div>
           </>
@@ -81,7 +81,7 @@ export default function ProgramCard({ program, onView, onEdit, onDelete }) {
         {/* Title & Category */}
         <div className="space-y-2">
           <h3 
-            className="font-bold text-base sm:text-lg text-gray-900 line-clamp-2 group-hover:text-purple-700 transition-colors leading-tight" 
+            className="font-bold text-base sm:text-lg text-gray-900 line-clamp-2 group-hover:text-orange-700 transition-colors leading-tight" 
             title={name}
           >
             {name}
@@ -103,12 +103,12 @@ export default function ProgramCard({ program, onView, onEdit, onDelete }) {
         {/* Stats Grid */}
         <div className="grid grid-cols-3 gap-2">
           {/* Levels */}
-          <div className="flex flex-col items-center p-2.5 bg-blue-50 rounded-xl border border-blue-100">
-            <div className="p-1.5 bg-blue-100 rounded-lg mb-1">
-              <Layers className="w-4 h-4 text-blue-600" strokeWidth={2.5} />
+          <div className="flex flex-col items-center p-2.5 bg-amber-50 rounded-xl border border-amber-100">
+            <div className="p-1.5 bg-amber-100 rounded-lg mb-1">
+              <Layers className="w-4 h-4 text-orange-600" strokeWidth={2.5} />
             </div>
-            <span className="text-xs font-bold text-blue-700">{total_levels}</span>
-            <span className="text-[10px] text-blue-600 font-semibold uppercase">Levels</span>
+            <span className="text-xs font-bold text-orange-700">{total_levels}</span>
+            <span className="text-[10px] text-orange-600 font-semibold uppercase">Levels</span>
           </div>
 
           {/* Age Range */}
@@ -121,12 +121,12 @@ export default function ProgramCard({ program, onView, onEdit, onDelete }) {
           </div>
 
           {/* Schools */}
-          <div className="flex flex-col items-center p-2.5 bg-purple-50 rounded-xl border border-purple-100">
-            <div className="p-1.5 bg-purple-100 rounded-lg mb-1">
-              <Users className="w-4 h-4 text-purple-600" strokeWidth={2.5} />
+          <div className="flex flex-col items-center p-2.5 bg-amber-50 rounded-xl border border-amber-100">
+            <div className="p-1.5 bg-amber-100 rounded-lg mb-1">
+              <Users className="w-4 h-4 text-orange-600" strokeWidth={2.5} />
             </div>
-            <span className="text-xs font-bold text-purple-700">{enrolled_schools ?? 0}</span>
-            <span className="text-[10px] text-purple-600 font-semibold uppercase">Schools</span>
+            <span className="text-xs font-bold text-orange-700">{enrolled_schools ?? 0}</span>
+            <span className="text-[10px] text-orange-600 font-semibold uppercase">Schools</span>
           </div>
         </div>
 
@@ -136,7 +136,7 @@ export default function ProgramCard({ program, onView, onEdit, onDelete }) {
             variant="outline" 
             size="sm" 
             onClick={() => onView?.(program)}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border-2 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 text-indigo-600 hover:text-indigo-700 font-semibold transition-all duration-200 hover:scale-105"
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border-2 border-gray-200 hover:border-amber-300 hover:bg-amber-50 text-amber-600 hover:text-amber-700 font-semibold transition-all duration-200 hover:scale-105"
           >
             <Eye className="w-4 h-4" strokeWidth={2.5} />
             <span className="hidden sm:inline">View</span>
@@ -146,7 +146,7 @@ export default function ProgramCard({ program, onView, onEdit, onDelete }) {
             variant="primary" 
             size="sm" 
             onClick={() => onEdit?.(program)}
-            className="flex items-center justify-center gap-1.5 p-2.5 sm:px-4 sm:py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-110"
+            className="flex items-center justify-center gap-1.5 p-2.5 sm:px-4 sm:py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-110"
             title="Edit"
           >
             <Edit className="w-4 h-4" strokeWidth={2.5} />
@@ -167,7 +167,7 @@ export default function ProgramCard({ program, onView, onEdit, onDelete }) {
       </div>
 
       {/* Bottom Corner Decoration */}
-      <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full blur-2xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 -z-10" />
+      <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full blur-2xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 -z-10" />
     </div>
   );
 }

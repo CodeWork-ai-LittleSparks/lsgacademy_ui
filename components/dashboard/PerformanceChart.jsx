@@ -98,19 +98,19 @@ export default function PerformanceChart({ distribution }) {
     { label: 'Average', value: distribution?.average ?? 0 },
     { label: 'In Process', value: distribution?.in_process ?? 0 },
   ];
-  const colors = ['#10b981', '#f59e0b', '#3b82f6'];
+  const colors = ['#10b981', '#f59e0b', '#fb923c'];
   const total = chartData.reduce((s, d) => s + d.value, 0) || 0;
 
   return (
     <Card className="group relative overflow-hidden rounded-2xl border border-gray-200 p-5 sm:p-6 bg-white shadow-sm hover:shadow-md transition-all duration-300">
       {/* Subtle decorative background (toned down for professional look) */}
-      <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-purple-50 to-blue-50 rounded-full blur-3xl opacity-0 group-hover:opacity-15 transition-opacity duration-500" />
+      <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-amber-50 to-orange-50 rounded-full blur-3xl opacity-0 group-hover:opacity-15 transition-opacity duration-500" />
       
       <div className="relative z-10">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2.5 bg-gradient-to-br from-purple-100 to-blue-100 rounded-xl shadow-sm">
-            <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" strokeWidth={2.5} />
+          <div className="p-2.5 bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl shadow-sm">
+            <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" strokeWidth={2.5} />
           </div>
           <h3 className="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
             Student Performance Distribution
@@ -131,7 +131,7 @@ export default function PerformanceChart({ distribution }) {
               return (
                 <div 
                   key={i} 
-                  className="group/item flex items-center gap-3 sm:gap-4 p-3 rounded-xl bg-white border border-gray-100 hover:border-purple-200 transition-all duration-200 hover:shadow-md"
+                  className="group/item flex items-center gap-3 sm:gap-4 p-3 rounded-xl bg-white border border-gray-100 hover:border-orange-200 transition-all duration-200 hover:shadow-md"
                 >
                   {/* Color Indicator */}
                   <div 
@@ -151,7 +151,7 @@ export default function PerformanceChart({ distribution }) {
                   </span>
                   
                   {/* Percentage Badge */}
-                  <span className="ml-auto px-3 py-1 text-xs sm:text-sm font-bold text-purple-700 bg-purple-100 rounded-full">
+                  <span className="ml-auto px-3 py-1 text-xs sm:text-sm font-bold text-orange-700 bg-orange-100 rounded-full">
                     {percentage}%
                   </span>
                 </div>
