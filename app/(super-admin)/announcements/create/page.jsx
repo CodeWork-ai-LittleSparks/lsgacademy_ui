@@ -149,7 +149,7 @@ export default function CreateAnnouncementPage() {
 
   return (
     <div className="min-h-full bg-gradient-to-br from-gray-50 via-purple-50/20 to-blue-50/20">
-      <div className="max-w-4xl mx-auto space-y-6 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-full mx-auto space-y-6 p-4 sm:p-6 lg:p-8">
         {/* Header Section */}
         <div className="flex flex-col gap-4 sm:gap-6">
           <div className="flex items-center gap-3">

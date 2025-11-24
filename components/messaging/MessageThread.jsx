@@ -10,7 +10,7 @@ import { toPublicAssetUrl } from "@/lib/utils/urlUtils";
 import { MoreVertical } from "lucide-react";
 import { useWebSocketStatus } from "@/app/providers/WebSocketProvider";
 
-export default function MessageThread({ conversationId, isUserOnline }) {
+export default function MessageThread({ conversationId, isUserOnline, requestPresence }) {
   const messagesEndRef = useRef(null);
   const { data, isLoading } = useConversation(conversationId, { page: 1, limit: 50 });
   const markRead = useMarkConversationRead();
@@ -34,6 +34,12 @@ export default function MessageThread({ conversationId, isUserOnline }) {
       markRead.mutate(conversationId);
     }
   }, [lastMessage, conversationId]);
+
+  useEffect(() => {
+    if (!data?.participant?.id || !requestPresence) return;
+    const id = String(data.participant.id);
+    requestPresence({ type: "get_online_users_for_ids", ids: [id] });
+  }, [data?.participant?.id, requestPresence]);
 
   if (isLoading) {
     return (

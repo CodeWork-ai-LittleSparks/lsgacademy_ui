@@ -643,13 +643,77 @@ export default function LevelDetailPage() {
         </Modal>
       )}
 
-      {/* Level Edit Modal - Similar modern styling as Milestone Modal, keeping all original functionality */}
       {isLevelModalOpen && (
-        <Modal>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            {/* Similar header styling as milestone modal */}
-            {/* Original level form fields with enhanced styling */}
-            {/* Keeping all the original add/remove logic for objectives and materials */}
+        <Modal isOpen={isLevelModalOpen} onClose={() => setLevelModalOpen(false)} title="Edit Level" size="lg">
+          <div className="space-y-6">
+            <div>
+              <label className="block text-xs font-bold text-gray-900 mb-2 uppercase tracking-wide px-2">Level Name *</label>
+              <Input value={levelForm.level_name} onChange={(e) => setLevelForm({ ...levelForm, level_name: e.target.value })} placeholder="Level name" className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 font-medium" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-900 mb-2 uppercase tracking-wide">Description *</label>
+              <textarea rows="4" value={levelForm.description} onChange={(e) => setLevelForm({ ...levelForm, description: e.target.value })} className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 font-medium resize-none" placeholder="Describe this level" />
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-gray-900 uppercase tracking-wide">Learning Objectives</label>
+                <div className="flex gap-2">
+                  <Input value={newObjective} onChange={(e) => setNewObjective(e.target.value)} placeholder="Add objective" className="px-3 py-2 border-2 border-gray-200 rounded-xl" />
+                  <Button variant="primary" onClick={() => { const v = String(newObjective).trim(); if (!v) return; setLevelForm({ ...levelForm, learning_objectives: [...(levelForm.learning_objectives || []), v] }); setNewObjective(''); }}>Add</Button>
+                </div>
+              </div>
+              {Array.isArray(levelForm.learning_objectives) && levelForm.learning_objectives.length > 0 && (
+                <ul className="space-y-2">
+                  {levelForm.learning_objectives.map((lo, idx) => (
+                    <li key={idx} className="flex items-center gap-3 p-2 border-2 border-gray-200 rounded-xl">
+                      <span className="text-sm font-medium flex-1">{lo}</span>
+                      <Button variant="outline" onClick={() => setLevelForm({ ...levelForm, learning_objectives: levelForm.learning_objectives.filter((_, i) => i !== idx) })}>Remove</Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-900 mb-2 uppercase tracking-wide">Teaching Instructions</label>
+              <textarea rows="3" value={levelForm.teaching_instructions} onChange={(e) => setLevelForm({ ...levelForm, teaching_instructions: e.target.value })} className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 font-medium resize-none" placeholder="Guidance for teaching" />
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-gray-900 uppercase tracking-wide">Required Materials</label>
+                <div className="flex gap-2">
+                  <Input value={newMaterial} onChange={(e) => setNewMaterial(e.target.value)} placeholder="Add material" className="px-3 py-2 border-2 border-gray-200 rounded-xl" />
+                  <Button variant="primary" onClick={() => { const v = String(newMaterial).trim(); if (!v) return; setLevelForm({ ...levelForm, required_materials: [...(levelForm.required_materials || []), v] }); setNewMaterial(''); }}>Add</Button>
+                </div>
+              </div>
+              {Array.isArray(levelForm.required_materials) && levelForm.required_materials.length > 0 && (
+                <ul className="space-y-2">
+                  {levelForm.required_materials.map((rm, idx) => (
+                    <li key={idx} className="flex items-center gap-3 p-2 border-2 border-gray-200 rounded-xl">
+                      <span className="text-sm font-medium flex-1">{rm}</span>
+                      <Button variant="outline" onClick={() => setLevelForm({ ...levelForm, required_materials: levelForm.required_materials.filter((_, i) => i !== idx) })}>Remove</Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-900 mb-2 uppercase tracking-wide">Duration (weeks)</label>
+                <Input type="number" value={levelForm.duration_weeks} onChange={(e) => setLevelForm({ ...levelForm, duration_weeks: e.target.value })} placeholder="e.g., 12" className="px-4 py-3 border-2 border-gray-200 rounded-xl" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-900 mb-2 uppercase tracking-wide">Age From</label>
+                <Input type="number" value={levelForm.age_from} onChange={(e) => setLevelForm({ ...levelForm, age_from: e.target.value })} placeholder="e.g., 6" className="px-4 py-3 border-2 border-gray-200 rounded-xl" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-900 mb-2 uppercase tracking-wide">Age To</label>
+                <Input type="number" value={levelForm.age_to} onChange={(e) => setLevelForm({ ...levelForm, age_to: e.target.value })} placeholder="e.g., 10" className="px-4 py-3 border-2 border-gray-200 rounded-xl" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+              <Button variant="secondary" onClick={() => setLevelModalOpen(false)} className="px-6 py-2.5 rounded-xl">Cancel</Button>
+              <Button variant="primary" onClick={handleSaveLevel} className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white">Save</Button>
+            </div>
           </div>
         </Modal>
       )}

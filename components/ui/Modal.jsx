@@ -47,7 +47,7 @@ export default function Modal({ isOpen = true, onClose, title, children, size = 
       onClick={() => onClose?.()}
     >
       <div
-        className={`bg-white rounded-lg shadow-lg ${widthMap[size] || widthMap.lg} max-h-[calc(100vh-2rem)] overflow-y-auto`}
+        className={`bg-white rounded-lg shadow-lg ${widthMap[size] || widthMap.lg} max-h-[calc(100vh-2rem)] overflow-y-auto border`}
         onClick={(e) => e.stopPropagation()}
       >
         {(title || onClose) && (

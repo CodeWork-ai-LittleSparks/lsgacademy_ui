@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { toPublicAssetUrl } from "@/lib/utils/urlUtils";
 import { Megaphone, MessageCircle } from "lucide-react";
 
-export default function ConversationsList({ conversations = [], isLoading = false, selectedId, onSelect, isUserOnline }) {
+export default function ConversationsList({ conversations = [], isLoading = false, selectedId, onSelect, isUserOnline, requestPresence }) {
   if (isLoading) {
     return (
       <div className="space-y-3 p-6">
@@ -37,6 +37,15 @@ export default function ConversationsList({ conversations = [], isLoading = fals
 
   return (
     <div className="space-y-2 p-4">
+      {requestPresence && Array.isArray(conversations) && conversations.length > 0 && (
+        (() => {
+          const ids = conversations
+            .map((c) => c?.participant?.id)
+            .filter((id) => id !== undefined && id !== null)
+            .map((id) => String(id));
+          if (ids.length) requestPresence({ type: "get_online_users_for_ids", ids });
+        })()
+      )}
       {conversations.map((conversation) => (
         <div
           key={conversation.id}

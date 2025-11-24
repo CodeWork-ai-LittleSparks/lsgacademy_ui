@@ -20,7 +20,7 @@ export default function MessagesPage() {
   const [newMessageIds, setNewMessageIds] = useState(new Set());
 
   const { data: conversationsData, isLoading, refetch } = useConversations({ page: 1, limit: 20, type: activeTab, search: debouncedSearch || undefined });
-  const { isConnected, isUserOnline } = useWebSocketStatus() || {};
+  const { isConnected, isUserOnline, sendMessage } = useWebSocketStatus() || {};
 
   const handleSelectConversation = (conversationId) => {
     setSelectedConversationId(conversationId);
@@ -88,14 +88,14 @@ export default function MessagesPage() {
               </TabsList>
             </Tabs>
             <div className="flex-1 overflow-y-auto">
-              <ConversationsList conversations={conversationsData?.conversations || conversationsData || []} isLoading={isLoading} selectedId={selectedConversationId} onSelect={handleSelectConversation} isUserOnline={isUserOnline} />
+              <ConversationsList conversations={conversationsData?.conversations || conversationsData || []} isLoading={isLoading} selectedId={selectedConversationId} onSelect={handleSelectConversation} isUserOnline={isUserOnline} requestPresence={sendMessage} />
             </div>
           </div>
           
           {/* Message Thread */}
           <div className="flex-1 flex flex-col">
             {selectedConversationId ? (
-              <MessageThread conversationId={selectedConversationId} isUserOnline={isUserOnline} />
+              <MessageThread conversationId={selectedConversationId} isUserOnline={isUserOnline} requestPresence={sendMessage} />
             ) : (
               <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-50 to-blue-50/30">
                 <div className="text-center space-y-4">

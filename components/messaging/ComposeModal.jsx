@@ -114,7 +114,7 @@ export default function ComposeModal({ isOpen, onClose }) {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="New Message" size="md">
-      <div className="space-y-6">
+      <div className="space-y-6 px-2">
         {/* Form Section Header */}
         <div className="flex items-center gap-3 pb-4 border-b-2 border-gray-100">
           <div className="p-2.5 bg-gradient-to-br from-purple-100 to-blue-100 rounded-xl shadow-sm">
