@@ -90,8 +90,7 @@ export default function Header() {
               aria-label="Go to Dashboard"
               onClick={() => router.push("/")}
               className="flex items-center gap-2 rounded-xl px-2 py-1 text-gray-800 hover:text-purple-700 transition-colors"
-            >
-              <span className="text-base sm:text-lg font-bold tracking-tight">LSG Academy</span>
+            >           
             </button>
           </div>
 
