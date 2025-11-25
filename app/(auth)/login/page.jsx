@@ -89,7 +89,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex relative overflow-hidden">
       {/* Animated Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#EA580C] via-[#C2410C] to-[#F59E0B] animate-gradient-shift"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-[#E97451] via-[#C85A3B] to-[#F2B7A1] animate-gradient-shift"></div>
       
       {/* Floating Orbs */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-[#E9B3FB] rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
@@ -102,13 +102,13 @@ export default function LoginPage() {
           {/* Glassmorphism Card */}
           <div className="relative bg-white/10 backdrop-blur-2xl p-10 rounded-3xl border border-white/20 shadow-2xl shadow-black/20">
             {/* Glow Effect */}
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-[#EA580C] to-[#F59E0B] rounded-3xl blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-[#E97451] to-[#F2B7A1] rounded-3xl blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
             
             <div className="relative">
               {/* Logo/Brand with animation */}
               <div className="mb-8 animate-fade-in">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#EA580C] to-[#F59E0B] rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#E97451] to-[#F2B7A1] rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
@@ -138,9 +138,9 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder=" "
-                    className="peer w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl text-white placeholder-transparent focus:outline-none focus:border-[#FDBA74] focus:bg-white/20 transition-all duration-300"
+                    className="peer w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl text-white placeholder-transparent focus:outline-none focus:border-[#F2B7A1] focus:bg-white/20 transition-all duration-300"
                   />
-                  <label className="absolute left-4 -top-2.5 bg-gradient-to-r from-[#EA580C] to-[#F59E0B] px-2 py-0.5 rounded text-xs font-medium text-white transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-white/50 peer-placeholder-shown:top-4 peer-placeholder-shown:bg-transparent peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-gradient-to-r peer-focus:from-[#EA580C] peer-focus:to-[#F59E0B]">
+                  <label className="absolute left-4 -top-2.5 bg-gradient-to-r from-[#E97451] to-[#F2B7A1] px-2 py-0.5 rounded text-xs font-medium text-white transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-white/50 peer-placeholder-shown:top-4 peer-placeholder-shown:bg-transparent peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-gradient-to-r peer-focus:from-[#E97451] peer-focus:to-[#F2B7A1]">
                     Email Address
                   </label>
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50">
@@ -165,9 +165,9 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder=" "
-                    className="peer w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl text-white placeholder-transparent focus:outline-none focus:border-[#FDBA74] focus:bg-white/20 transition-all duration-300"
+                    className="peer w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl text-white placeholder-transparent focus:outline-none focus:border-[#F2B7A1] focus:bg-white/20 transition-all duration-300"
                   />
-                  <label className="absolute left-4 -top-2.5 bg-gradient-to-r from-[#EA580C] to-[#F59E0B] px-2 py-0.5 rounded text-xs font-medium text-white transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-white/50 peer-placeholder-shown:top-4 peer-placeholder-shown:bg-transparent peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-gradient-to-r peer-focus:from-[#EA580C] peer-focus:to-[#F59E0B]">
+                  <label className="absolute left-4 -top-2.5 bg-gradient-to-r from-[#E97451] to-[#F2B7A1] px-2 py-0.5 rounded text-xs font-medium text-white transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-white/50 peer-placeholder-shown:top-4 peer-placeholder-shown:bg-transparent peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-gradient-to-r peer-focus:from-[#E97451] peer-focus:to-[#F2B7A1]">
                     Password
                   </label>
                   <button
@@ -205,7 +205,7 @@ export default function LoginPage() {
                     />
                     <span className="text-white/70 group-hover:text-white transition-colors">Remember me</span>
                   </label>
-                  <Link href="/forgot-password" className="text-[#FDBA74] hover:text-[#FFEDD5] font-medium transition-colors">
+                  <Link href="/forgot-password" className="text-[#E97451] hover:text-[#FFD8CA] font-medium transition-colors">
                     Forgot Password?
                   </Link>
                 </div>
@@ -214,7 +214,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="relative w-full bg-gradient-to-r from-[#EA580C] to-[#F59E0B] hover:from-[#F59E0B] hover:to-[#EA580C] text-white font-bold py-4 px-6 rounded-xl transition-all duration-500 transform hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#FDBA74]/50 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group"
+                  className="relative w-full bg-gradient-to-r from-[#E97451] to-[#F2B7A1] hover:from-[#F2B7A1] hover:to-[#E97451] text-white font-bold py-4 px-6 rounded-xl transition-all duration-500 transform hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#FFD8CA]/50 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     {loading ? (
