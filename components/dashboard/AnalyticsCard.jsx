@@ -10,9 +10,9 @@ export default function AnalyticsCard({ title, value, suffix = '', trend = null,
   const trendBgColor = isUp ? 'bg-green-50' : 'bg-red-50';
 
   return (
-    <Card className="group relative overflow-hidden shadow-md hover:shadow-xl rounded-2xl border border-gray-200 hover:border-purple-200 p-5 sm:p-6 bg-gradient-to-br from-white to-gray-50 hover:from-purple-50 hover:to-blue-50 transition-all duration-300 hover:scale-[1.02]">
+    <Card className="group relative overflow-hidden shadow-md hover:shadow-xl rounded-2xl border border-gray-200 hover:border-amber-200 p-5 sm:p-6 bg-gradient-to-br from-white to-gray-50 hover:from-amber-50 hover:to-orange-50 transition-all duration-300 hover:scale-[1.02]">
       {/* Decorative Gradient Accent */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full blur-3xl opacity-0 group-hover:opacity-30 transition-opacity duration-500" />
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full blur-3xl opacity-0 group-hover:opacity-30 transition-opacity duration-500" />
       
       <div className="relative z-10">
         {/* Header Section */}
@@ -46,7 +46,7 @@ export default function AnalyticsCard({ title, value, suffix = '', trend = null,
         {/* Description */}
         {description && (
           <div className="flex items-start gap-2 mb-4">
-            <div className="w-1 h-4 bg-gradient-to-b from-purple-400 to-blue-400 rounded-full flex-shrink-0 mt-0.5" />
+            <div className="w-1 h-4 bg-gradient-to-b from-amber-400 to-orange-400 rounded-full flex-shrink-0 mt-0.5" />
             <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-medium">
               {description}
             </p>
@@ -58,13 +58,13 @@ export default function AnalyticsCard({ title, value, suffix = '', trend = null,
           <div className="mt-5 space-y-2">
             <div className="flex items-center justify-between text-xs sm:text-sm mb-2">
               <span className="font-semibold text-gray-700">Target Progress</span>
-              <span className="font-bold text-purple-600">
+              <span className="font-bold text-orange-600">
                 {Math.min(Math.max(progress, 0), 100)}%
               </span>
             </div>
             <div className="relative h-2.5 sm:h-3 bg-gray-100 rounded-full overflow-hidden shadow-inner">
               <div 
-                className="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-500 via-purple-600 to-blue-600 rounded-full transition-all duration-700 ease-out shadow-sm"
+                className="absolute inset-y-0 left-0 bg-gradient-to-r from-amber-500 via-orange-600 to-orange-700 rounded-full transition-all duration-700 ease-out shadow-sm"
                 style={{ width: `${Math.min(Math.max(progress, 0), 100)}%` }}
               >
                 <div className="absolute inset-0 bg-white/20 animate-pulse" />
@@ -76,7 +76,7 @@ export default function AnalyticsCard({ title, value, suffix = '', trend = null,
 
       {/* Hover Effect Border */}
       <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-400 to-blue-400 opacity-20" />
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-400 opacity-20" />
       </div>
     </Card>
   );

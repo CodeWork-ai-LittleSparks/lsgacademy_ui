@@ -1,10 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/authContext";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,6 +18,34 @@ export default function LoginPage() {
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+
+  useEffect(() => {
+    try {
+      const enabled = localStorage.getItem('lsg_remember_enabled');
+      if (enabled === 'true') {
+        setRememberMe(true);
+        const re = localStorage.getItem('lsg_remember_email');
+        const rp = localStorage.getItem('lsg_remember_password');
+        if (re) setEmail(re);
+        if (rp) setPassword(rp);
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (rememberMe) {
+        localStorage.setItem('lsg_remember_enabled', 'true');
+        localStorage.setItem('lsg_remember_email', email || '');
+        localStorage.setItem('lsg_remember_password', password || '');
+      } else {
+        localStorage.removeItem('lsg_remember_enabled');
+        localStorage.removeItem('lsg_remember_email');
+        localStorage.removeItem('lsg_remember_password');
+      }
+    } catch {}
+  }, [rememberMe, email, password]);
 
   const validate = () => {
     let isValid = true;
@@ -51,7 +80,7 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const result = await login(email, password);
+      const result = await login(email, password, rememberMe);
       
       if (result.success) {
         // Check if password change is required
@@ -87,36 +116,31 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex relative overflow-hidden">
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[560px_1fr] relative overflow-hidden">
       {/* Animated Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#6F00FF] via-[#3B0270] to-[#E9B3FB] animate-gradient-shift"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-[#E97451] via-[#C85A3B] to-[#F2B7A1] animate-gradient-shift"></div>
       
       {/* Floating Orbs */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-[#E9B3FB] rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-      <div className="absolute top-0 right-0 w-96 h-96 bg-[#FFF1F1] rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-      <div className="absolute bottom-0 left-20 w-96 h-96 bg-[#6F00FF] rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+      <div className="absolute top-0 left-0 w-96 h-96 bg-[#FFD8CA] rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+      <div className="absolute top-0 right-0 w-96 h-96 bg-[#FFE7E0] rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+      <div className="absolute bottom-0 left-20 w-96 h-96 bg-[#E97451] rounded-full mix-blend-multiply filter blur-3xl opacity-25 animate-blob animation-delay-4000"></div>
 
       {/* Left Side - Login Form */}
-      <div className="relative w-full lg:w-1/2 flex items-center justify-center p-8 z-10">
-        <div className="w-full max-w-md animate-fade-in-up">
+      <div className="relative w-full lg:w-[560px] flex items-center justify-center p-6 lg:p-10 z-10">
+        <div className="w-full max-w-lg animate-fade-in-up">
           {/* Glassmorphism Card */}
-          <div className="relative bg-white/10 backdrop-blur-2xl p-10 rounded-3xl border border-white/20 shadow-2xl shadow-black/20">
+          <div className="relative bg-white/15 backdrop-blur-2xl p-8 sm:p-10 rounded-3xl border border-white/20 shadow-2xl shadow-black/20">
             {/* Glow Effect */}
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-[#6F00FF] to-[#E9B3FB] rounded-3xl blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-[#E97451] to-[#F2B7A1] rounded-3xl blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
             
             <div className="relative">
-              {/* Logo/Brand with animation */}
-              <div className="mb-8 animate-fade-in">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#6F00FF] to-[#E9B3FB] rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </div>
-                  <span className="text-white font-bold text-xl">YourBrand</span>
+              {/* Logo/Brand */}
+              <div className="mb-6 sm:mb-8 animate-fade-in">
+                <div className="flex items-center justify-center mb-6">
+                  <Image src="/images/logo.png" alt="LSG Academy" width={220} height={110} priority className="object-contain" />
                 </div>
-                <h1 className="text-5xl font-bold text-white mb-2">Welcome Back</h1>
-                <p className="text-white/70 text-sm">Enter your credentials to access your account</p>
+                {/* <h1 className="text-4xl sm:text-5xl font-bold text-white mb-1">Welcome Back</h1>
+                <p className="text-white/80 text-sm">Enter your credentials to access your account</p> */}
               </div>
 
               <form onSubmit={onSubmit} className="space-y-5">
@@ -138,9 +162,10 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder=" "
-                    className="peer w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl text-white placeholder-transparent focus:outline-none focus:border-[#E9B3FB] focus:bg-white/20 transition-all duration-300"
+                    className="peer w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl text-white placeholder-transparent focus:outline-none focus:border-[#F2B7A1] focus:bg-white/20 transition-all duration-300"
+                    style={{ caretColor: '#ffffff' }}
                   />
-                  <label className="absolute left-4 -top-2.5 bg-gradient-to-r from-[#6F00FF] to-[#E9B3FB] px-2 py-0.5 rounded text-xs font-medium text-white transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-white/50 peer-placeholder-shown:top-4 peer-placeholder-shown:bg-transparent peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-gradient-to-r peer-focus:from-[#6F00FF] peer-focus:to-[#E9B3FB]">
+                  <label className="absolute left-4 -top-2.5 bg-gradient-to-r from-[#E97451] to-[#F2B7A1] px-2 py-0.5 rounded text-xs font-medium text-white transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-white/50 peer-placeholder-shown:top-4 peer-placeholder-shown:bg-transparent peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-gradient-to-r peer-focus:from-[#E97451] peer-focus:to-[#F2B7A1]">
                     Email Address
                   </label>
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50">
@@ -165,9 +190,10 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder=" "
-                    className="peer w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl text-white placeholder-transparent focus:outline-none focus:border-[#E9B3FB] focus:bg-white/20 transition-all duration-300"
+                    className="peer w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl text-white placeholder-transparent focus:outline-none focus:border-[#F2B7A1] focus:bg-white/20 transition-all duration-300"
+                    style={{ caretColor: '#ffffff' }}
                   />
-                  <label className="absolute left-4 -top-2.5 bg-gradient-to-r from-[#6F00FF] to-[#E9B3FB] px-2 py-0.5 rounded text-xs font-medium text-white transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-white/50 peer-placeholder-shown:top-4 peer-placeholder-shown:bg-transparent peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-gradient-to-r peer-focus:from-[#6F00FF] peer-focus:to-[#E9B3FB]">
+                  <label className="absolute left-4 -top-2.5 bg-gradient-to-r from-[#E97451] to-[#F2B7A1] px-2 py-0.5 rounded text-xs font-medium text-white transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-white/50 peer-placeholder-shown:top-4 peer-placeholder-shown:bg-transparent peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-gradient-to-r peer-focus:from-[#E97451] peer-focus:to-[#F2B7A1]">
                     Password
                   </label>
                   <button
@@ -197,15 +223,17 @@ export default function LoginPage() {
                 </div>
 
                 {/* Remember Me & Forgot Password */}
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-sm mt-2">
                   <label className="flex items-center gap-2 cursor-pointer group">
                     <input 
                       type="checkbox" 
-                      className="w-4 h-4 rounded border-2 border-white/30 bg-white/10 checked:bg-gradient-to-r checked:from-[#6F00FF] checked:to-[#E9B3FB] focus:ring-2 focus:ring-[#E9B3FB] transition-all"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="w-4 h-4 rounded border-2 border-white/30 bg-white/10 checked:bg-[#E97451] focus:ring-2 focus:ring-[#F2B7A1] transition-all focus:outline-none"
                     />
                     <span className="text-white/70 group-hover:text-white transition-colors">Remember me</span>
                   </label>
-                  <Link href="/forgot-password" className="text-[#E9B3FB] hover:text-[#FFF1F1] font-medium transition-colors">
+                  <Link href="/forgot-password" className="text-[#FFD8CA] hover:text-[#FFFFFF] font-medium transition-colors">
                     Forgot Password?
                   </Link>
                 </div>
@@ -214,7 +242,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="relative w-full bg-gradient-to-r from-[#6F00FF] to-[#E9B3FB] hover:from-[#E9B3FB] hover:to-[#6F00FF] text-white font-bold py-4 px-6 rounded-xl transition-all duration-500 transform hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#E9B3FB]/50 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group"
+                  className="relative w-full bg-gradient-to-r from-[#E97451] to-[#F2B7A1] hover:from-[#F2B7A1] hover:to-[#E97451] text-white font-bold py-4 px-6 rounded-xl transition-all duration-500 transform hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#FFD8CA]/50 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     {loading ? (
@@ -238,17 +266,14 @@ export default function LoginPage() {
                 </button>
               </form>
 
-              {/* Footer */}
-              <div className="mt-6 text-center text-sm text-white/70">
-                Need help? Contact your administrator
-              </div>
+              
             </div>
           </div>
         </div>
       </div>
 
       {/* Right Side - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 items-center justify-center relative z-10 p-12">
+      <div className="hidden lg:flex items-center justify-center relative z-10 p-8 lg:p-12">
         {/* Decorative Floating Elements */}
         <div className="absolute top-20 left-20 w-40 h-40 bg-[#E9B3FB]/30 rounded-full blur-3xl animate-float"></div>
         <div className="absolute bottom-20 right-20 w-48 h-48 bg-[#FFF1F1]/30 rounded-full blur-3xl animate-float animation-delay-2000"></div>
@@ -258,10 +283,13 @@ export default function LoginPage() {
         <div className="relative z-10 w-full h-full flex items-center justify-center animate-fade-in-up animation-delay-500">
           <div className="relative group w-full max-w-2xl">
             {/* Main 3D Character - Use a better illustration */}
-            <div className="relative w-full h-[600px] flex items-center justify-center">
-              <img 
-                src="https://cdni.iconscout.com/illustration/premium/thumb/user-account-sign-up-illustration-download-in-svg-png-gif-file-formats--login-form-interface-pack-design-development-illustrations-4703625.png?f=webp" 
+            <div className="relative w-full h-[520px] xl:h-[600px] flex items-center justify-center">
+              <Image 
+                src="/images/loginimage.jpg" 
                 alt="Welcome illustration"
+                width={900}
+                height={700}
+                priority
                 className="w-full h-full object-contain drop-shadow-2xl transform group-hover:scale-105 transition-transform duration-700"
               />
             </div>

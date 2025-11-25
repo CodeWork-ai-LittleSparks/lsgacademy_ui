@@ -28,7 +28,7 @@ export function TabsTrigger({ value, children }) {
     <button
       type="button"
       onClick={() => ctx?.setValue?.(value)}
-      className={`px-3 py-2 text-sm ${active ? "border-b-2 border-blue-600" : "text-gray-600"}`}
+      className={`px-3 py-2 text-sm ${active ? "border-b-2 border-orange-600" : "text-gray-600"}`}
     >
       {children}
     </button>

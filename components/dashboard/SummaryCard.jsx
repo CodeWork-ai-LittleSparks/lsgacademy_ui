@@ -4,9 +4,9 @@ import Card from '@/components/ui/Card';
 
 export default function SummaryCard({ title, value, subtitle, Icon, colorClass = 'text-indigo-600', bgClass = 'bg-indigo-50' }) {
   return (
-    <Card className="group relative overflow-hidden shadow-md hover:shadow-xl rounded-2xl border border-gray-200 hover:border-purple-300 p-5 sm:p-6 bg-white transition-all duration-300 hover:scale-[1.02]">
+    <Card className="group relative overflow-hidden shadow-md hover:shadow-xl rounded-2xl border border-gray-200 hover:border-amber-300 p-5 sm:p-6 bg-white transition-all duration-300 hover:scale-[1.02]">
       {/* Decorative Background Effect */}
-      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full blur-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-500" />
+      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full blur-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-500" />
       
       <div className="relative z-10 flex items-start gap-4">
         {/* Icon Container */}

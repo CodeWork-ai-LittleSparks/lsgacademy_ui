@@ -2,7 +2,7 @@
 import Card from '@/components/ui/Card';
 import { TrendingUp, BarChart3 } from 'lucide-react';
 
-function LineChart({ data, width = 600, height = 280, color = '#7c3aed' }) {
+function LineChart({ data, width = 600, height = 280, color = '#ea580c' }) {
   if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-[280px] text-sm font-medium text-gray-500">
@@ -31,12 +31,12 @@ function LineChart({ data, width = 600, height = 280, color = '#7c3aed' }) {
     <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Daily evaluations trend" className="drop-shadow-sm">
       <defs>
         <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#7c3aed" />
-          <stop offset="100%" stopColor="#3b82f6" />
+          <stop offset="0%" stopColor="#f59e0b" />
+          <stop offset="100%" stopColor="#ea580c" />
         </linearGradient>
         <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.2" />
-          <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.05" />
+          <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="#ea580c" stopOpacity="0.05" />
         </linearGradient>
       </defs>
       
@@ -77,15 +77,15 @@ function LineChart({ data, width = 600, height = 280, color = '#7c3aed' }) {
 
 export default function TrendChart({ title = 'Evaluation Trends (Last 7 Days)', data }) {
   return (
-    <Card className="group relative overflow-hidden rounded-2xl border border-gray-200 hover:border-purple-200 p-5 sm:p-6 bg-white shadow-md hover:shadow-xl transition-all duration-300">
+    <Card className="group relative overflow-hidden rounded-2xl border border-gray-200 hover:border-amber-200 p-5 sm:p-6 bg-white shadow-md hover:shadow-xl transition-all duration-300">
       {/* Decorative Background */}
-      <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full blur-3xl opacity-0 group-hover:opacity-15 transition-opacity duration-500" />
+      <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full blur-3xl opacity-0 group-hover:opacity-15 transition-opacity duration-500" />
       
       <div className="relative z-10">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2.5 bg-gradient-to-br from-purple-100 to-blue-100 rounded-xl shadow-sm">
-            <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" strokeWidth={2.5} />
+          <div className="p-2.5 bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl shadow-sm">
+            <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" strokeWidth={2.5} />
           </div>
           <h3 className="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
             {title}

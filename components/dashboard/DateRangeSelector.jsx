@@ -24,12 +24,12 @@ export default function DateRangeSelector({ from, to, onChange, onRefresh, lastU
         {/* From Date Input */}
         <div className="flex-1 min-w-[120px]">
           <label className="flex items-center gap-1.5 text-xs font-medium text-gray-600 mb-1.5">
-            <Calendar className="w-3.5 h-3.5 text-purple-500" strokeWidth={2} />
+            <Calendar className="w-3.5 h-3.5 text-orange-500" strokeWidth={2} />
             From
           </label>
           <input 
             type="date" 
-            className="w-full border border-gray-300 hover:border-purple-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 rounded-lg px-3 py-2 text-sm text-gray-700 bg-white transition-all duration-150 outline-none"
+            className="w-full border border-gray-300 hover:border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-100 rounded-lg px-3 py-2 text-sm text-gray-700 bg-white transition-all duration-150 outline-none"
             value={localFrom}
             onChange={(e) => { 
               const v = e.target.value; 
@@ -42,12 +42,12 @@ export default function DateRangeSelector({ from, to, onChange, onRefresh, lastU
         {/* To Date Input */}
         <div className="flex-1 min-w-[120px]">
           <label className="flex items-center gap-1.5 text-xs font-medium text-gray-600 mb-1.5">
-            <Calendar className="w-3.5 h-3.5 text-purple-500" strokeWidth={2} />
+            <Calendar className="w-3.5 h-3.5 text-orange-500" strokeWidth={2} />
             To
           </label>
           <input 
             type="date" 
-            className="w-full border border-gray-300 hover:border-purple-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 rounded-lg px-3 py-2 text-sm text-gray-700 bg-white transition-all duration-150 outline-none"
+            className="w-full border border-gray-300 hover:border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-100 rounded-lg px-3 py-2 text-sm text-gray-700 bg-white transition-all duration-150 outline-none"
             value={localTo}
             onChange={(e) => { 
               const v = e.target.value; 
@@ -59,7 +59,7 @@ export default function DateRangeSelector({ from, to, onChange, onRefresh, lastU
 
         {/* Refresh Button */}
         <Button 
-          className="flex items-center justify-center gap-1.5 bg-purple-600 text-white hover:bg-purple-700 rounded-lg px-4 py-2 text-sm font-medium shadow-sm hover:shadow transition-all duration-150 min-w-[90px]" 
+          className="flex items-center justify-center gap-1.5 bg-orange-600 text-white hover:bg-orange-700 rounded-lg px-4 py-2 text-sm font-medium shadow-sm hover:shadow transition-all duration-150 min-w-[90px]" 
           onClick={onRefresh}
         >
           <RefreshCw className="w-4 h-4" strokeWidth={2} />

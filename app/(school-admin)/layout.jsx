@@ -12,7 +12,7 @@ function LayoutContent({ children }) {
       <Sidebar role="school-admin" />
       <main 
         className={`pt-16 p-6 transition-all duration-300 ${
-          minimized ? 'md:pl-[75px]' : 'md:pl-[225px]'
+          minimized ? 'md:pl-[85px]' : 'md:pl-[275px]'
         }`}
       >
         {children}
