@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 const WebSocketContext = createContext(null);
 
 export function WebSocketProvider({ children }) {
-  const { isConnected, lastMessage, isUserOnline, onlineUsers, sendMessage, reconnect } = useWebSocket();
+  const { isConnected, lastMessage, isUserOnline, onlineUsers, sendMessage, reconnect, disconnect } = useWebSocket();
   const queryClient = useQueryClient();
   const router = useRouter();
 
@@ -44,7 +44,7 @@ export function WebSocketProvider({ children }) {
     }
   }, [lastMessage]);
 
-  return <WebSocketContext.Provider value={{ isConnected, lastMessage, isUserOnline, onlineUsers, sendMessage, reconnect }}>{children}</WebSocketContext.Provider>;
+  return <WebSocketContext.Provider value={{ isConnected, lastMessage, isUserOnline, onlineUsers, sendMessage, reconnect, disconnect }}>{children}</WebSocketContext.Provider>;
 }
 
 export function useWebSocketStatus() {
