@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { authService } from '../api/services/authService';
 import { ROUTES, USER_ROLES } from '../constants/config';
 import { setupTokenExpiryCheck, clearAuthData } from '../utils/tokenUtils';
+import { useWebSocketStatus } from '@/app/providers/WebSocketProvider';
 
 const AuthContext = createContext();
 
@@ -12,6 +13,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { reconnect, disconnect } = useWebSocketStatus() || {};
 
   useEffect(() => {
     checkAuth();
@@ -42,11 +44,13 @@ export function AuthProvider({ children }) {
         
         if (storedUser) {
           setUser(storedUser);
+          try { reconnect?.(); } catch {}
         } else {
           // Fetch user from API
           const result = await authService.getCurrentUser();
           if (result.success) {
             setUser(result.user);
+            try { reconnect?.(); } catch {}
           } else {
             await authService.logout();
             router.push(ROUTES.LOGIN);
@@ -65,6 +69,7 @@ export function AuthProvider({ children }) {
     
     if (result.success) {
       setUser(result.user);
+      try { reconnect?.(); } catch {}
       
       // Redirect based on role
       if (result.user.role === USER_ROLES.SUPER_ADMIN) {
@@ -79,6 +84,7 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
+      try { disconnect?.(); } catch {}
       await authService.logout();
     } catch (error) {
       console.error('Logout error:', error);

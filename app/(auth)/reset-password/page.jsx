@@ -1,11 +1,19 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authService } from "@/lib/api/services/authService";
 import Link from "next/link";
 import Image from "next/image";
 
 export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen grid place-items-center text-white">Loading...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
+  );
+}
+
+function ResetPasswordContent() {
   const router = useRouter();
   const params = useSearchParams();
   const initialToken = params.get("token") || params.get("reset_token") || "";

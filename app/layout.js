@@ -23,11 +23,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider>
-          <QueryProvider>
-            <WebSocketProvider>{children}</WebSocketProvider>
-          </QueryProvider>
-        </AuthProvider>
+        <QueryProvider>
+          <WebSocketProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </WebSocketProvider>
+        </QueryProvider>
       </body>
     </html>
   );
