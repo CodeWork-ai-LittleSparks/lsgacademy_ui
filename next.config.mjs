@@ -31,6 +31,12 @@ if (apiUrl) {
 remotePatterns.push({ protocol: 'https', hostname: 'api.dev.lsgacademy.in', pathname: '/uploads/**' });
 domains.add('api.dev.lsgacademy.in');
 
+// Always allow common local development hosts
+remotePatterns.push({ protocol: 'http', hostname: 'localhost', port: '8000', pathname: '/uploads/**' });
+domains.add('localhost');
+remotePatterns.push({ protocol: 'http', hostname: '127.0.0.1', port: '8000', pathname: '/uploads/**' });
+domains.add('127.0.0.1');
+
 const nextConfig = {
   // Use standalone output so Azure SWA can boot the server faster and more reliably
   output: 'standalone',

@@ -60,8 +60,8 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const login = async (email, password) => {
-    const result = await authService.login(email, password);
+  const login = async (email, password, rememberMe = true) => {
+    const result = await authService.login(email, password, rememberMe);
     
     if (result.success) {
       setUser(result.user);
