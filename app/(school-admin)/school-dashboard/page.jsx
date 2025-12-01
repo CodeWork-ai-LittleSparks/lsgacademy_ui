@@ -10,14 +10,9 @@ import Loading from "@/components/common/Loading";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { ROUTES } from "@/lib/constants/config";
-import { MapPin, Users, UserCog, BookOpen, CheckCircle, Plus, FileText, AlertTriangle, Star } from "lucide-react";
+import { MapPin, Users, UserCog, BookOpen, CheckCircle, Plus, FileText, Star, CalendarDays, Lightbulb, User } from "lucide-react";
 
-function defaultDateRange() {
-  const to = new Date();
-  const from = new Date(to.getTime() - 7 * 24 * 60 * 60 * 1000);
-  const fmt = (d) => d.toISOString().slice(0, 10);
-  return { from: fmt(from), to: fmt(to) };
-}
+function defaultDateRange() { return { from: null, to: null }; }
 
 export default function SchoolAdminDashboardPage() {
   const router = useRouter();
@@ -33,7 +28,9 @@ export default function SchoolAdminDashboardPage() {
     setError(null);
     if (opts.overlay !== true) setLoading(true);
     try {
-      const res = await getSchoolAdminDashboard(dateRange.from, dateRange.to);
+      const from = dateRange?.from || null;
+      const to = dateRange?.to || null;
+      const res = await getSchoolAdminDashboard(from, to);
       setDashboardData(res.data);
       setMetadata(res.metadata || null);
       setLastUpdated(res?.metadata?.generated_at ? new Date(res.metadata.generated_at).toISOString() : new Date().toISOString());
@@ -84,88 +81,119 @@ export default function SchoolAdminDashboardPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-full bg-gradient-to-br from-gray-50 via-amber-50/20 to-orange-50/20">
+      <div className="max-w-full mx-auto space-y-6 sm:space-y-8 p-4 sm:p-4 lg:p-5">
       {/* Header */}
-      <div className="flex flex-col gap-3 mb-2">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <h1 className="text-2xl font-bold text-gray-900">{school.school_name || 'School Dashboard'}</h1>
-            <div className="flex items-center gap-2 text-sm text-gray-700">
-              <MapPin className="w-4 h-4 text-indigo-600" aria-hidden />
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-100">{school.location || 'Unknown location'}</span>
+      <div className="flex flex-col gap-4 sm:gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-gradient-to-br from-amber-600 to-orange-600 rounded-2xl shadow-lg">
+              <BookOpen className="w-6 h-6 sm:w-7 sm:h-7 text-white" strokeWidth={2.5} />
+            </div>
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
+              <p className="text-sm sm:text-base text-gray-600 font-medium mt-1">{school.school_name || 'Your School'}</p>
             </div>
           </div>
-          <DateRangeSelector
-            from={dateRange.from}
-            to={dateRange.to}
-            lastUpdated={lastUpdated}
-            onChange={(dr) => setDateRange({ from: dr.from, to: dr.to })}
-            onRefresh={() => loadDashboard({ overlay: true })}
-          />
+          <div className="flex items-center gap-2">
+            <DateRangeSelector
+              from={dateRange?.from || ''}
+              to={dateRange?.to || ''}
+              onChange={(dr) => setDateRange({ from: dr.from, to: dr.to })}
+              compact={true}
+            />
+          </div>
         </div>
-        {metadata?.date_range ? (
-          <p className="text-sm text-gray-600">Showing data for <span className="font-medium">{metadata.date_range.from}</span> to <span className="font-medium">{metadata.date_range.to}</span></p>
-        ) : null}
         {error ? (
           <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded p-2">{error} <button className="ml-2 text-indigo-600" onClick={() => loadDashboard({ overlay: true })}>Retry</button></div>
         ) : null}
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <button onClick={() => router.push(ROUTES.SCHOOL_ADMIN_STUDENTS)} className="text-left"><SummaryCard title="Students" value={school.total_students ?? 0} Icon={Users} colorClass="text-blue-600" bgClass="bg-blue-50" /></button>
-        <button onClick={() => router.push(ROUTES.SCHOOL_ADMIN_TEACHERS)} className="text-left"><SummaryCard title="Teachers" value={school.total_teachers ?? 0} Icon={UserCog} colorClass="text-green-600" bgClass="bg-green-50" /></button>
-        <button onClick={() => router.push(ROUTES.SCHOOL_ADMIN_PROGRAMS)} className="text-left"><SummaryCard title="Programs" value={school.programs_enrolled ?? 0} Icon={BookOpen} colorClass="text-purple-600" bgClass="bg-purple-50" /></button>
-        <button onClick={() => router.push(ROUTES.SCHOOL_ADMIN_EVALUATIONS)} className="text-left"><SummaryCard title="This Week" value={summary.evaluations_this_week ?? 0} Icon={CheckCircle} colorClass="text-orange-600" bgClass="bg-orange-50" /></button>
+      <div>
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2">
+          <div className="w-1 h-6 bg-gradient-to-b from-amber-600 to-orange-600 rounded-full" />
+          Overview Statistics
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-5">
+          <button onClick={() => router.push(ROUTES.SCHOOL_ADMIN_STUDENTS)} className="text-left"><SummaryCard title="Students" value={school.total_students ?? 0} Icon={Users} colorClass="text-blue-600" bgClass="bg-blue-50" /></button>
+          <button onClick={() => router.push(ROUTES.SCHOOL_ADMIN_TEACHERS)} className="text-left"><SummaryCard title="Teachers" value={school.total_teachers ?? 0} Icon={UserCog} colorClass="text-green-600" bgClass="bg-green-50" /></button>
+          <button onClick={() => router.push(ROUTES.SCHOOL_ADMIN_PROGRAMS)} className="text-left"><SummaryCard title="Programs" value={school.programs_enrolled ?? 0} Icon={BookOpen} colorClass="text-purple-600" bgClass="bg-purple-50" /></button>
+          <button onClick={() => router.push(ROUTES.SCHOOL_ADMIN_EVALUATIONS)} className="text-left"><SummaryCard title="This Week" value={summary.evaluations_this_week ?? 0} Icon={CheckCircle} colorClass="text-orange-600" bgClass="bg-orange-50" /></button>
+        </div>
       </div>
 
       {/* Quick Actions */}
       <Card className="rounded-lg border border-gray-200 p-6 bg-white shadow-sm hover:shadow-md">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2">
+          <div className="w-1 h-6 bg-gradient-to-b from-amber-600 to-orange-600 rounded-full" />
+          Quick Actions
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <Button className="bg-indigo-600 text-white hover:bg-indigo-700" onClick={() => router.push(`${ROUTES.SCHOOL_ADMIN_STUDENTS}/new`)}><Plus className="w-4 h-4 mr-2" />Add Student</Button>
-          <Button className="bg-indigo-600 text-white hover:bg-indigo-700" onClick={() => router.push(`${ROUTES.SCHOOL_ADMIN_TEACHERS}/new`)}><Plus className="w-4 h-4 mr-2" />Add Teacher</Button>
-          <Button variant="outline" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_REPORTS)}><FileText className="w-4 h-4 mr-2" />View Reports</Button>
+          <Button className="bg-indigo-600 text-white hover:bg-indigo-700 cursor-pointer" onClick={() => router.push(`${ROUTES.SCHOOL_ADMIN_STUDENTS}/new`)}><Plus className="w-4 h-4 mr-2" />Add Student</Button>
+          <Button className="bg-indigo-600 text-white hover:bg-indigo-700 cursor-pointer" onClick={() => router.push(`${ROUTES.SCHOOL_ADMIN_TEACHERS}/new`)}><Plus className="w-4 h-4 mr-2" />Add Teacher</Button>
+          <Button variant="outline" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_REPORTS)} className="cursor-pointer"><FileText className="w-4 h-4 mr-2" />View Reports</Button>
         </div>
       </Card>
 
       {/* Students Needing Attention */}
-      <Card className="rounded-lg border border-amber-200 p-6 bg-amber-50">
+      <Card className="rounded-lg border border-gray-200 p-6 bg-white shadow-sm hover:shadow-md">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-amber-800">Students Needing Attention ({studentsAttention.length})</h2>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
+            <div className="w-1 h-6 bg-gradient-to-b from-amber-600 to-orange-600 rounded-full" />
+            Students Needing Attention ({studentsAttention.length})
+          </h2>
           {studentsAttention.length > 5 ? (
-            <button className="text-sm text-indigo-600 hover:underline" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_STUDENTS)}>View All</button>
+            <button className="text-sm text-indigo-600 hover:underline cursor-pointer" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_STUDENTS)}>View All</button>
           ) : null}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
           {studentsAttention.slice(0, 5).map((s, i) => (
-            <div key={i} className="rounded-md border border-amber-200 bg-white p-4">
-              <div className="flex items-center gap-2 text-amber-700 font-medium"><AlertTriangle className="w-4 h-4" aria-hidden />{s.student_name} • Grade {s.grade}</div>
-              <div className="text-sm text-gray-700 mt-1">📚 {s.program}</div>
-              <div className="text-sm text-gray-700">📅 {s.last_evaluation}</div>
-              <div className="text-sm text-gray-700">💡 Reason: {s.reason}</div>
+            <div key={i} className="rounded-md border border-gray-200 bg-white p-4 hover:border-indigo-200 hover:shadow-sm transition">
+              <div className="flex items-center gap-2 text-gray-900 font-semibold">
+                <User className="w-4 h-4 text-indigo-600" aria-hidden />
+                {s.student_name} • Grade {s.grade}
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-700 mt-2">
+                <BookOpen className="w-4 h-4 text-gray-500" aria-hidden />
+                <span>{s.program}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-700">
+                <CalendarDays className="w-4 h-4 text-gray-500" aria-hidden />
+                <span>{s.last_evaluation}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-700">
+                <Lightbulb className="w-4 h-4 text-gray-500" aria-hidden />
+                <span>Reason: {s.reason}</span>
+              </div>
               <div className="flex gap-2 mt-3">
-                <Button size="sm" className="bg-indigo-600 text-white hover:bg-indigo-700" onClick={() => router.push(`${ROUTES.SCHOOL_ADMIN_PROGRAMS}/enroll`)}>Enroll in Program</Button>
-                <Button size="sm" variant="outline" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_STUDENTS)}>View Details</Button>
+                <Button size="sm" className="bg-indigo-600 text-white hover:bg-indigo-700 cursor-pointer" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_PROGRAMS)}>Enroll in Program</Button>
+                <Button size="sm" variant="outline" className="cursor-pointer" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_STUDENTS)}>View Details</Button>
               </div>
             </div>
           ))}
           {studentsAttention.length === 0 ? (
-            <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded p-2">All students on track! ✅</div>
+            <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded p-2">
+              <CheckCircle className="w-4 h-4" aria-hidden />
+              <span>All students on track</span>
+            </div>
           ) : null}
         </div>
       </Card>
 
       {/* Students by Grade */}
       <Card className="rounded-lg border border-gray-200 p-6 bg-white shadow-sm hover:shadow-md">
-        <h2 className="text-lg font-semibold text-gray-800 mb-3">Students by Grade</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2">
+          <div className="w-1 h-6 bg-gradient-to-b from-amber-600 to-orange-600 rounded-full" />
+          Students by Grade
+        </h2>
         <div className="flex flex-wrap gap-2">
           {allGrades.map((g) => {
             const count = Number(studentsByGrade[g] || 0);
             const active = count > 0;
             return (
               <button key={g} onClick={() => router.push(`${ROUTES.SCHOOL_ADMIN_STUDENTS}?grade=${g}`)}
-                className={`px-3 py-1 rounded-full text-sm border ${active ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-gray-50 text-gray-500 border-gray-200'}`}
+                className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${active ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-gray-50 text-gray-500 border-gray-200'}`}
                 aria-label={`Grade ${g}: ${count} student${count !== 1 ? 's' : ''}`}
               >Grade {g} ({count})</button>
             );
@@ -175,18 +203,23 @@ export default function SchoolAdminDashboardPage() {
       </Card>
 
       {/* Charts and Program Progress */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div>
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2">
+          <div className="w-1 h-6 bg-gradient-to-b from-amber-600 to-orange-600 rounded-full" />
+          Performance Insights
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
         <PerformanceChart distribution={perfDist} />
         <Card className="rounded-lg border border-gray-200 p-6 bg-white shadow-sm hover:shadow-md">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-lg font-semibold text-gray-800">Program Progress</h2>
             {programProgress.length > 3 ? (
-              <button className="text-sm text-indigo-600 hover:underline" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_PROGRAMS)}>View All Programs</button>
+              <button className="text-sm text-indigo-600 hover:underline cursor-pointer" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_PROGRAMS)}>View All Programs</button>
             ) : null}
           </div>
           <div className="space-y-3">
             {programProgress.slice(0, 3).map((p, i) => (
-              <button key={i} className="w-full text-left" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_PROGRAMS)}>
+              <button key={i} className="w-full text-left cursor-pointer" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_PROGRAMS)}>
                 <div className="rounded-md border border-gray-200 p-4">
                   <div className="font-semibold text-gray-900">{p.program}</div>
                   <div className="text-sm text-gray-600">{p.enrolled_students} student{p.enrolled_students !== 1 ? 's' : ''} enrolled</div>
@@ -208,17 +241,21 @@ export default function SchoolAdminDashboardPage() {
             {programProgress.length === 0 ? <p className="text-sm text-gray-600">No programs enrolled</p> : null}
           </div>
         </Card>
+        </div>
       </div>
 
       {/* Teacher Performance Summary */}
       <Card className="rounded-lg border border-gray-200 p-6 bg-white shadow-sm hover:shadow-md">
-        <h2 className="text-lg font-semibold text-gray-800 mb-2">Teacher Performance</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2">
+          <div className="w-1 h-6 bg-gradient-to-b from-amber-600 to-orange-600 rounded-full" />
+          Teacher Performance
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {teacherSummary.sort((a, b) => (b.evaluations_this_week ?? 0) - (a.evaluations_this_week ?? 0)).map((t, i) => {
             const score = Number(t.avg_performance ?? 0);
             const color = score >= 4 ? 'border-green-200 bg-green-50' : score >= 3 ? 'border-yellow-200 bg-yellow-50' : 'border-red-200 bg-red-50';
             return (
-              <button key={i} className="w-full text-left" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_TEACHERS)}>
+              <button key={i} className="w-full text-left cursor-pointer" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_TEACHERS)}>
                 <div className={`rounded-md border p-4 ${color}`}>
                   <div className="flex items-center gap-2">
                     <UserCog className="w-5 h-5 text-gray-600" aria-hidden />
@@ -241,15 +278,17 @@ export default function SchoolAdminDashboardPage() {
       </Card>
 
       {/* Recent Evaluations */}
-      <RecentEvaluations items={recentEvaluations.slice(0, 5)} />
-      <div className="flex justify-end">
-        <button className="text-sm text-indigo-600 hover:underline" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_EVALUATIONS)}>View All Evaluations</button>
+      <div>
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2">
+          <div className="w-1 h-6 bg-gradient-to-b from-purple-600 to-blue-600 rounded-full" />
+          Recent Activity
+        </h2>
+        <RecentEvaluations items={recentEvaluations.slice(0, 5)} />
+        <div className="flex justify-end">
+          <button className="text-sm text-indigo-600 hover:underline cursor-pointer" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_EVALUATIONS)}>View All Evaluations</button>
+        </div>
       </div>
 
-      {/* Footer metadata */}
-      <div className="text-xs text-gray-500 flex items-center justify-between">
-        <span>Last updated: {lastUpdated}</span>
-        {responseMs != null ? <span>Response time: {Number(responseMs).toFixed(2)}ms</span> : null}
       </div>
     </div>
   );

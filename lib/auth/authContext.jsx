@@ -6,6 +6,10 @@ import { authService } from '../api/services/authService';
 import { ROUTES, USER_ROLES } from '../constants/config';
 import { setupTokenExpiryCheck, clearAuthData } from '../utils/tokenUtils';
 import { useWebSocketStatus } from '@/app/providers/WebSocketProvider';
+import { toast } from 'sonner';
+import axios from 'axios';
+import { API_CONFIG, STORAGE_KEYS } from '../constants/config';
+import { setCookie } from '../utils/cookieUtils';
 
 const AuthContext = createContext();
 
@@ -20,16 +24,48 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    // Set up automatic logout on token expiry
     if (user) {
       setupTokenExpiryCheck(() => {
-        handleAutoLogout();
+        handleTokenExpiry();
       });
     }
   }, [user]);
 
-  const handleAutoLogout = () => {
-    console.log('Auto logout triggered due to token expiry');
+  const refreshAccessToken = async () => {
+    try {
+      const refreshToken = (typeof window !== 'undefined')
+        ? (localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN) ?? sessionStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN))
+        : null;
+      if (!refreshToken) return { success: false };
+      const response = await axios.post(`${API_CONFIG.BASE_URL}/auth/refresh`, { refresh_token: refreshToken }, { headers: { 'Content-Type': 'application/json' } });
+      if (response?.data?.success && response.data?.data?.access_token) {
+        const newToken = response.data.data.access_token;
+        const useSession = !!sessionStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+        if (useSession) {
+          sessionStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newToken);
+        } else {
+          localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newToken);
+        }
+        setCookie('lsg_access_token', newToken, useSession ? 1 : 30);
+        return { success: true, access_token: newToken };
+      }
+      return { success: false };
+    } catch (e) {
+      return { success: false, error: e?.message };
+    }
+  };
+
+  const handleTokenExpiry = async () => {
+    const res = await refreshAccessToken();
+    if (res.success) {
+      try { reconnect?.(); } catch {}
+      try {
+        setupTokenExpiryCheck(() => {
+          handleTokenExpiry();
+        });
+      } catch {}
+      return;
+    }
     clearAuthData();
     setUser(null);
     router.push(ROUTES.LOGIN);
@@ -70,6 +106,12 @@ export function AuthProvider({ children }) {
     if (result.success) {
       setUser(result.user);
       try { reconnect?.(); } catch {}
+
+      try {
+        if (result.user?.is_password_temporary || result.requirePasswordChange) {
+          toast.warning('You are using a temporary password. We recommend changing it.');
+        }
+      } catch {}
       
       // Redirect based on role
       if (result.user.role === USER_ROLES.SUPER_ADMIN) {

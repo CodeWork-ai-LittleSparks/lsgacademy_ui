@@ -13,12 +13,7 @@ import DateRangeSelector from '@/components/dashboard/DateRangeSelector';
 import Loading from '@/components/common/Loading';
 import { Building2, Users, GraduationCap, BookOpen, ClipboardList, Sparkles } from 'lucide-react';
 
-function defaultDateRange() {
-  const to = new Date();
-  const from = new Date(to.getTime() - 7 * 24 * 60 * 60 * 1000);
-  const fmt = (d) => d.toISOString().slice(0, 10);
-  return { from: fmt(from), to: fmt(to) };
-}
+function defaultDateRange() { return { from: null, to: null }; }
 
 export default function SuperAdminDashboardPage() {
   const { user } = useAuth();
@@ -34,7 +29,9 @@ export default function SuperAdminDashboardPage() {
     setError(null);
     if (opts.overlay !== true) setLoading(true);
     try {
-      const res = await dashboardService.getDashboardData(dateRange.from, dateRange.to, { force: opts.force });
+      const from = dateRange?.from || null;
+      const to = dateRange?.to || null;
+      const res = await dashboardService.getDashboardData(from, to, { force: opts.force });
       setDashboardData(res.data);
       setMetadata(res.metadata || null);
       setLastUpdated(res?.metadata?.generated_at ? new Date(res.metadata.generated_at).toISOString() : new Date().toISOString());
@@ -70,28 +67,23 @@ export default function SuperAdminDashboardPage() {
         <div className="flex flex-col gap-4 sm:gap-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-amber-600 to-orange-600 rounded-2xl shadow-lg">
+              <div className="p-3 bg-gradient-to-br from-amber-600 to-orange-600 rounded-2xl shadow-lg">
                 <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-white" strokeWidth={2.5} />
               </div>
               <div>
-                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
-                  Dashboard
-                </h1>
-                <p className="text-sm sm:text-base text-gray-600 font-medium mt-1">
-                  Welcome back, {user?.full_name || 'Admin'}
-                </p>
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
+                <p className="text-sm sm:text-base text-gray-600 font-medium mt-1">Welcome back, {user?.full_name || 'Admin'}</p>
               </div>
             </div>
+            <div className="flex items-center gap-2">
+              <DateRangeSelector
+                from={dateRange?.from || ''}
+                to={dateRange?.to || ''}
+                onChange={(dr) => setDateRange({ from: dr.from, to: dr.to })}
+                compact={true}
+              />
+            </div>
           </div>
-
-          {/* Date Range Selector */}
-          <DateRangeSelector
-            from={dateRange.from}
-            to={dateRange.to}
-            lastUpdated={lastUpdated}
-            onChange={(dr) => setDateRange({ from: dr.from, to: dr.to })}
-            onRefresh={() => loadDashboard({ force: true, overlay: true })}
-          />
 
           {/* Error Message */}
           {error && (
@@ -109,18 +101,7 @@ export default function SuperAdminDashboardPage() {
             </div>
           )}
 
-          {/* Date Range Info */}
-          {metadata?.date_range && (
-            <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-orange-200 rounded-xl shadow-sm">
-              <div className="w-1.5 h-1.5 bg-orange-600 rounded-full animate-pulse" />
-              <p className="text-sm font-semibold text-gray-700">
-                Showing data from{' '}
-                <span className="font-bold text-orange-700">{metadata.date_range.from}</span>
-                {' '}to{' '}
-                <span className="font-bold text-orange-700">{metadata.date_range.to}</span>
-              </p>
-            </div>
-          )}
+          
         </div>
 
         {/* Summary Cards */}

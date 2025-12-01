@@ -46,10 +46,6 @@ export default function EditProgramPage() {
     compare('name', payload.name, program.name);
     compare('category_id', payload.category_id, program?.category?.id);
     compare('description', payload.description, program.description);
-    compare('total_levels', payload.total_levels, program.total_levels);
-    compare('age_from', payload.age_from, program.age_from);
-    compare('age_to', payload.age_to, program.age_to);
-    compare('is_active', payload.is_active, program.is_active);
 
     const res = await updateProgram(programId, updates, thumbnailFile);
     if (res.success) {

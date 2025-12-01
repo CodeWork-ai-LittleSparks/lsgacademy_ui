@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Link from "next/link";
 import Image from "next/image";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -83,13 +84,9 @@ export default function LoginPage() {
       const result = await login(email, password, rememberMe);
       
       if (result.success) {
-        // Check if password change is required
         if (result.requirePasswordChange) {
-          router.push("/change-password");
-          return;
+          try { toast.warning("You are using a temporary password. We recommend changing it."); } catch {}
         }
-        
-        // Login successful - authContext will handle role-based redirect
         return;
       } else {
         // Handle different error codes
@@ -101,8 +98,9 @@ export default function LoginPage() {
             setError("Your account is inactive. Please contact support.");
             break;
           case 'PASSWORD_CHANGE_REQUIRED':
-            router.push("/change-password");
-            return;
+            try { toast.warning("You are using a temporary password. We recommend changing it."); } catch {}
+            setError(result.error || "Login requires password change.");
+            break;
           default:
             setError(result.error || "Login failed. Please try again.");
         }

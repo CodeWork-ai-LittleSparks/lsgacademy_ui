@@ -61,6 +61,7 @@ export default function ProgramForm({ initialData = null, isEditing = false, onS
         return '';
       
       case 'total_levels':
+        if (isEditing) return '';
         const levels = Number(value);
         if (!value || value === '') return 'Total levels is required';
         if (!Number.isInteger(levels)) return 'Total levels must be a whole number';
@@ -69,6 +70,7 @@ export default function ProgramForm({ initialData = null, isEditing = false, onS
         return '';
       
       case 'age_from':
+        if (isEditing) return '';
         const ageFrom = Number(value);
         if (!value || value === '') return 'Minimum age is required';
         if (!Number.isInteger(ageFrom)) return 'Age must be a whole number';
@@ -77,6 +79,7 @@ export default function ProgramForm({ initialData = null, isEditing = false, onS
         return '';
       
       case 'age_to':
+        if (isEditing) return '';
         const ageTo = Number(value);
         if (!value || value === '') return 'Maximum age is required';
         if (!Number.isInteger(ageTo)) return 'Age must be a whole number';
@@ -107,9 +110,11 @@ export default function ProgramForm({ initialData = null, isEditing = false, onS
     e.name = validateField('name', form.name);
     e.category_id = validateField('category_id', form.category_id);
     e.description = validateField('description', form.description);
-    e.total_levels = validateField('total_levels', form.total_levels);
-    e.age_from = validateField('age_from', form.age_from);
-    e.age_to = validateField('age_to', form.age_to);
+    if (!isEditing) {
+      e.total_levels = validateField('total_levels', form.total_levels);
+      e.age_from = validateField('age_from', form.age_from);
+      e.age_to = validateField('age_to', form.age_to);
+    }
     e.thumbnail = validateField('thumbnail', null);
 
     // Remove empty errors
@@ -162,7 +167,11 @@ export default function ProgramForm({ initialData = null, isEditing = false, onS
     
     try {
       setSubmitting(true);
-      const payload = {
+      const payload = isEditing ? {
+        name: form.name.trim(),
+        category_id: form.category_id,
+        description: form.description.trim(),
+      } : {
         name: form.name.trim(),
         category_id: form.category_id,
         description: form.description.trim(),
@@ -349,6 +358,7 @@ export default function ProgramForm({ initialData = null, isEditing = false, onS
                 className={inputClass('total_levels')}
                 placeholder="Enter Total Levels (1-50)"
                 maxLength={2}
+                disabled={isEditing}
               />
             </div>
             {touched.total_levels && errors.total_levels && <ValidationMessage message={errors.total_levels} />}
@@ -375,6 +385,7 @@ export default function ProgramForm({ initialData = null, isEditing = false, onS
                   className={inputClass('age_from')}
                   placeholder="Enter Min Age (3-18)"
                   maxLength={2}
+                  disabled={isEditing}
                 />
               </div>
               {touched.age_from && errors.age_from && <ValidationMessage message={errors.age_from} />}
@@ -398,6 +409,7 @@ export default function ProgramForm({ initialData = null, isEditing = false, onS
                   className={inputClass('age_to')}
                   placeholder="Enter Max Age (3-18)"
                   maxLength={2}
+                  disabled={isEditing}
                 />
               </div>
               {touched.age_to && errors.age_to && <ValidationMessage message={errors.age_to} />}
@@ -417,6 +429,7 @@ export default function ProgramForm({ initialData = null, isEditing = false, onS
                   checked={!!form.is_active} 
                   onChange={() => setForm({ ...form, is_active: true })}
                   className="sr-only peer"
+                  disabled={isEditing}
                 />
                 <div className="flex items-center justify-center gap-2 p-3 sm:p-4 border-2 border-gray-200 rounded-xl peer-checked:border-green-500 peer-checked:bg-green-50 transition-all duration-200 hover:border-green-300 shadow-sm">
                   <CheckCircle className="w-5 h-5 text-green-600" strokeWidth={2.5} />
@@ -430,6 +443,7 @@ export default function ProgramForm({ initialData = null, isEditing = false, onS
                   checked={!form.is_active} 
                   onChange={() => setForm({ ...form, is_active: false })}
                   className="sr-only peer"
+                  disabled={isEditing}
                 />
                 <div className="flex items-center justify-center gap-2 p-3 sm:p-4 border-2 border-gray-200 rounded-xl peer-checked:border-red-500 peer-checked:bg-red-50 transition-all duration-200 hover:border-red-300 shadow-sm">
                   <XCircle className="w-5 h-5 text-red-600" strokeWidth={2.5} />
