@@ -105,8 +105,8 @@ export default function SettingsPage() {
   const TAB_ITEMS = [
     { key: 'profile', label: 'Profile', icon: <User className="w-4 h-4" strokeWidth={2.5} /> },
     { key: 'security', label: 'Security', icon: <Shield className="w-4 h-4" strokeWidth={2.5} /> },
-    { key: 'categories', label: 'Categories', icon: <Tag className="w-4 h-4" strokeWidth={2.5} /> },
-    { key: 'performance', label: 'Performance', icon: <TrendingUp className="w-4 h-4" strokeWidth={2.5} /> },
+    // { key: 'categories', label: 'Categories', icon: <Tag className="w-4 h-4" strokeWidth={2.5} /> },
+    // { key: 'performance', label: 'Performance', icon: <TrendingUp className="w-4 h-4" strokeWidth={2.5} /> },
   ];
   const [activeTab, setActiveTab] = useState('profile');
 
@@ -627,7 +627,7 @@ export default function SettingsPage() {
         </div>
       )}
 
-      {activeTab === 'categories' && (
+      {/* {activeTab === 'categories' && (
         <div className="rounded-2xl border-2 border-[#E9B3FB] bg-white p-4 space-y-4 shadow-lg">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-gray-900">Program Categories</h2>
@@ -690,9 +690,9 @@ export default function SettingsPage() {
             </Modal>
           )}
         </div>
-      )}
+      )} */}
 
-      {activeTab === 'performance' && (
+      {/* {activeTab === 'performance' && (
         <div className="rounded-2xl border-2 border-[#E9B3FB] bg-white p-4 space-y-4 shadow-lg">
           <h2 className="text-lg font-semibold text-gray-900">Performance Categories</h2>
           <p className="text-sm text-gray-600">These categories are used for student evaluations</p>
@@ -752,7 +752,7 @@ export default function SettingsPage() {
             </div>
           )}
         </div>
-      )}
+      )} */}
     </div>
   );
 }

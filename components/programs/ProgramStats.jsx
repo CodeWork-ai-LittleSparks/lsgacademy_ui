@@ -74,9 +74,9 @@ export default function ProgramStats({ statistics }) {
                   {c.value.toLocaleString()}
                 </div>
                 {/* Growth Badge (Optional - could be dynamic) */}
-                <div className={`px-2 py-0.5 rounded-lg text-xs font-bold bg-gradient-to-r ${c.gradient} ${c.iconColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
+                {/* <div className={`px-2 py-0.5 rounded-lg text-xs font-bold bg-gradient-to-r ${c.gradient} ${c.iconColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
                   +12%
-                </div>
+                </div> */}
               </div>
               <div className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide">
                 {c.label}

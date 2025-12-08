@@ -66,9 +66,9 @@ const StatCard = ({ icon: Icon, label, value, color = 'indigo' }) => {
             {value?.toLocaleString() ?? 0}
           </div>
           {/* Growth Badge (Optional - could be dynamic) */}
-          <div className={`px-2 py-0.5 rounded-lg text-xs font-bold ${cls.bg} ${cls.icon} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
+          {/* <div className={`px-2 py-0.5 rounded-lg text-xs font-bold ${cls.bg} ${cls.icon} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
             +12%
-          </div>
+          </div> */}
         </div>
         
         {/* Additional Context */}
@@ -91,7 +91,6 @@ export default function SchoolStats({ statistics }) {
       <StatCard icon={GraduationCap} label="Students" value={total_students} color="purple" />
       <StatCard icon={Users} label="Teachers" value={total_teachers} color="green" />
       <StatCard icon={BookOpen} label="Programs" value={total_programs} color="orange" />
-      <StatCard icon={ClipboardList} label="Enrollments" value={active_enrollments} color="sky" />
     </section>
   );
 }

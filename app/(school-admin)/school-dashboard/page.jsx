@@ -120,17 +120,17 @@ export default function SchoolAdminDashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <Card className="rounded-lg border border-gray-200 p-6 bg-white shadow-sm hover:shadow-md">
+      {/* <Card className="rounded-lg border border-gray-200 p-6 bg-white shadow-sm hover:shadow-md">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Button className="bg-indigo-600 text-white hover:bg-indigo-700" onClick={() => router.push(`${ROUTES.SCHOOL_ADMIN_STUDENTS}/new`)}><Plus className="w-4 h-4 mr-2" />Add Student</Button>
           <Button className="bg-indigo-600 text-white hover:bg-indigo-700" onClick={() => router.push(`${ROUTES.SCHOOL_ADMIN_TEACHERS}/new`)}><Plus className="w-4 h-4 mr-2" />Add Teacher</Button>
           <Button variant="outline" onClick={() => router.push(ROUTES.SCHOOL_ADMIN_REPORTS)}><FileText className="w-4 h-4 mr-2" />View Reports</Button>
         </div>
-      </Card>
+      </Card> */}
 
       {/* Students Needing Attention */}
-      <Card className="rounded-lg border border-amber-200 p-6 bg-amber-50">
+      {/* <Card className="rounded-lg border border-amber-200 p-6 bg-amber-50">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold text-amber-800">Students Needing Attention ({studentsAttention.length})</h2>
           {studentsAttention.length > 5 ? (
@@ -156,7 +156,7 @@ export default function SchoolAdminDashboardPage() {
         </div>
       </Card>
 
-      {/* Students by Grade */}
+      
       <Card className="rounded-lg border border-gray-200 p-6 bg-white shadow-sm hover:shadow-md">
         <h2 className="text-lg font-semibold text-gray-800 mb-3">Students by Grade</h2>
         <div className="flex flex-wrap gap-2">
@@ -172,7 +172,7 @@ export default function SchoolAdminDashboardPage() {
           })}
         </div>
         {Object.keys(studentsByGrade).length === 0 ? <p className="text-sm text-gray-600 mt-2">No students enrolled</p> : null}
-      </Card>
+      </Card> */}
 
       {/* Charts and Program Progress */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
